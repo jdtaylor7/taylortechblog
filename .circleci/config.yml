@@ -14,7 +14,7 @@ jobs:
           name: Set up environment
           command: |
             bundle install
-            sudo ./bin/setup
+            ./bin/setup
   test:
     executor: docker_executor
     steps:
