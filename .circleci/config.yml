@@ -25,9 +25,9 @@ jobs:
             bundle install
 #            echo bundle update
 #            bundle update
-            echo bundle exec jekyll build
+            # echo bundle exec jekyll build
             bundle exec jekyll build
-            echo rm -R ./_site/node_modules
+            # echo rm -R ./_site/node_modules
             rm -R ./_site/node_modules
             bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
 
