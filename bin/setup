@@ -12,12 +12,14 @@ bundle update
 
 # Set up JS dependencies via Yarn.
 uname -r
-HAS_APT=$(which apt-get 2>/dev/null)
-HAS_PACMAN=$(which pacman 2>/dev/null)
+#HAS_APT=$( which apt-get 2>/dev/null )
+#HAS_PACMAN=$( which pacman 2>/dev/null )
 
-if [[ -n "$HAS_APT" ]]; then
+if [ -n "$( which apt-get 2>/dev/null )" ]; then
+    echo "apt installed"
     sudo apt-get install -y yarn
-elif [[ -n "$HAS_PACMAN" ]]; then
-    sudo pacman -S yarn --no-confirm
+elif [ -n "$( which pacman 2>/dev/null )" ]; then
+    echo "pacman installed"
+    sudo pacman -S yarn --noconfirm
 fi
 yarn install --modules-folder ./_assets/yarn
