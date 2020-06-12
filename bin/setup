@@ -16,7 +16,7 @@ uname -r
 if [ -n "$( which apt 2>/dev/null )" ]; then
     echo "apt installed"
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source.list.d/yarn.list
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
     sudo apt update
     sudo apt install -y yarn
 elif [ -n "$( which pacman 2>/dev/null )" ]; then
