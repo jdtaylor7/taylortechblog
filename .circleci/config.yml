@@ -25,6 +25,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            ./bin/setup
             bundle install
             ls -la /home/circleci
             ls -la /home/circleci/project
