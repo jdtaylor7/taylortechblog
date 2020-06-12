@@ -1,21 +1,20 @@
-version: 2
+version: 2.1
 
 executors:
-  linux_executor:
-    machine:
-      - image: circleci/ruby:2.5.1
-      - image: circleci/nodejs:8.0.0
+  docker_executor:
+    docker:
+      - image: circleci/ruby:2.7.1-buster-node
 
 jobs:
   setup:
-    executor: linux_executor
+    executor: docker_executor
     steps:
       - checkout
       - run:
           name: Set up environment
           command: ./bin/setup
   test:
-    executor: linux_executor
+    executor: docker_executor
     steps:
       - checkout
       - run:
@@ -26,7 +25,7 @@ jobs:
             bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
 
 workflows:
-  version: 2
+  version: 2.1
   test_all:
     jobs:
       - setup
