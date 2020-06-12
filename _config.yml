@@ -3,8 +3,8 @@
 blog_theme: light # Or use dark
 name: Taylor Tech Blog
 paginate: 25
-# url: https://jdtaylor7.github.io/taylortechblog
-baseurl: taylortechblog
+# url: https://jdtaylor7.github.io/
+# baseurl: taylortechblog
 
 
 # Optional settings
