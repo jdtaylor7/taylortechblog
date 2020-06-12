@@ -21,10 +21,10 @@ jobs:
           name: Run tests
           command: |
             bundle install
-            ls -la /home/circleci/project/_assets/yarn
-            ls -la /home/circleci/project/_assets
-            ls -la /home/circleci/project
             ls -la /home/circleci
+            ls -la /home/circleci/project
+            ls -la /home/circleci/project/_assets
+            ls -la /home/circleci/project/_assets/yarn
             bundle exec jekyll build
             rm -R ./_site/node_modules
             bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
