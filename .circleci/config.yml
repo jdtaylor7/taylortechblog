@@ -13,7 +13,6 @@ jobs:
       - run:
           name: Set up environment
           command: |
-            bundle install
             ./bin/setup
   test:
     executor: docker_executor
@@ -22,6 +21,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            bundle install
             bundle exec jekyll build
             rm -R ./_site/node_modules
             bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
