@@ -12,7 +12,12 @@ jobs:
       - checkout
       - run:
           name: Set up environment
-          command: ./bin/setup
+          command: |
+            ./bin/setup
+            ls -la /home/circleci
+            ls -la /home/circleci/project
+            ls -la /home/circleci/project/_assets
+            ls -la /home/circleci/project/_assets/yarn
   test:
     executor: docker_executor
     steps:
