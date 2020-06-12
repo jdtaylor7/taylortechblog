@@ -22,6 +22,7 @@ jobs:
           name: Run tests
           command: |
             bundle install
+            echo bundle exec jekyll build
             bundle exec jekyll build
             rm -R ./_site/node_modules
             bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
