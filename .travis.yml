@@ -4,6 +4,9 @@ sudo: false
 language: ruby
 cache: bundler
 
+notifications:
+    email: false
+
 before_install:
   - gem update --system
   - gem install bundler jekyll
@@ -20,4 +23,3 @@ env:
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=true # speeds up installation of html-proofer
     - LC_ALL=en_US.UTF-8
     - JEKYLL_ENV=production
-
