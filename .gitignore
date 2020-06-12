@@ -12,4 +12,5 @@ Thumbs.db
 Gemfile.lock
 package-lock.json
 yarn.lock
+yarn-error.log
 .idea

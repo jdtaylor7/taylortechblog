@@ -12,7 +12,9 @@ jobs:
       - checkout
       - run:
           name: Set up environment
-          command: sudo ./bin/setup
+          command: |
+            bundle install
+            sudo ./bin/setup
   test:
     executor: docker_executor
     steps:
