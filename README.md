@@ -4,6 +4,10 @@ Chalk is a high quality, completely customizable, performant and 100% free blog 
 
 ## Overview
 
+[![Build Status](https://travis-ci.com/jdtaylor7/taylortechblog.svg?branch=master)](https://travis-ci.com/jdtaylor7/taylortechblog)
+
+[![CircleCI](https://circleci.com/gh/jdtaylor7/taylortechblog.svg?style=svg)](https://circleci.com/gh/jdtaylor7/taylortechblog)
+
 Features:
   - About page.
   - Automatic RSS feed.
