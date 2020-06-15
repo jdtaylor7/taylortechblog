@@ -1,5 +1,5 @@
-[![Build Status](travis)](travis-url)
-[![CircleCI](circle)](circle-url)
+[![Build Status][travis]][travis-url]
+[![CircleCI][circle]][circle-url]
 
 ## Overview
 
