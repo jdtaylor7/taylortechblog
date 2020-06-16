@@ -21,7 +21,7 @@ server.
 
 For my use case, I can use configuration management to install a complete list
 of packages and install many "dotfiles", the configuration files which define
-the behavior of bash, vim, atom, etc.
+the behavior of Bash, Vim, Atom, etc.
 
 ### Ansible
 
@@ -61,7 +61,7 @@ The functionality of Ansible is realized through the use of playbooks. Each
 playbook is a YAML file which coordinates a set of actions. Since playbooks can
 effectively call other playbooks like they are functions, I divided up the
 installation task among multiple playbooks, with one main playbook that calls
-all the rest.
+the rest.
 
 ### Installing Packages
 
@@ -79,7 +79,20 @@ package managers.</span>
 
 ### Installing Config Files
 
+My setup includes configurations for Bash, Vim, etc. Copies of these config
+files are maintained in the same repo as the Ansible code, so it is a simple
+matter of copying these files into the user's home directory using the `copy`
+module:
 
+{% highlight yaml %}
+  ...
+  tasks:
+  - name: Install bash config
+    copy:
+        src: "{{ source_directory }}/.bashrc"
+        dest: "{{ home_directory }}"
+    ...
+{% endhighlight %}
 
 ### User and SSH Settings
 

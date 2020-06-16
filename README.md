@@ -3,8 +3,8 @@
 
 ## Overview
 
-TaylorTechBlog is a personal technology blog focusing on software. This
-repository hosts all related code and content.
+TaylorTechBlog is a personal technology blog focused on software. This
+repo hosts all related code and content.
 
 ## License
 

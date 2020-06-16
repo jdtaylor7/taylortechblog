@@ -3,7 +3,7 @@
 blog_theme: light # Or use dark
 name: Taylor Tech Blog
 paginate: 25
-
+url: https://taylortechblog.com
 
 # Optional settings
 
