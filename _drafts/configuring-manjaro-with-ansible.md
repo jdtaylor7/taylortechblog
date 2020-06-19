@@ -17,7 +17,7 @@ deploy, and update.
 
 In DevOps, configuration management is the concept of organizing the software
 packages and settings present in one or more machines. A common application is
-for system administrators to manage a cluster of servers from a center control
+for system administrators to manage a cluster of servers from a central control
 server.
 
 For my use case, I can employ configuration management to automatically install
@@ -26,17 +26,17 @@ the behavior of applications like Bash, Vim, Atom, etc.
 
 ### Ansible
 
-There are many configuration management tools out there right now, popular among
-them entries such as Ansible, Chef, Puppet, and SaltStack. Since I have not
-dabbled with configuration management before, I decided to use Ansible since it
-is quite easy to set up and has a large following.
+There are many configuration management tools out there right now, including
+popular entries such as Ansible, Chef, Puppet, and SaltStack. Since I have not
+dabbled with configuration management before, I decided to use Ansible because
+it is quite easy to set up and has a large following.
 
 {% include image.html path="ansible-logo-wide.png"
 path-detail="ansible-logo-wide.png" alt="Chalk intro" %}
 
-Ansible uses the "push" model of configuring management, meaning that a central
-server pushes configuration settings to various clients. It is also agentless,
-which means that Ansible code runs on the server only, not on the clients. The
+Ansible uses the "push" model of configuration management, meaning that a
+central server pushes configuration settings to various clients. It is also
+agentless, in that Ansible code runs on the server only, not on the clients. The
 server sends all necessary commands over the network. This is convenient since
 client machines simply need a network connection to start being configured.
 
@@ -89,32 +89,32 @@ Let's break down the structure of this playbook. First, the playbook file itself
 begins with a line of three dashes. This is required when specifying YAML
 directives, as they would go above this line, or when specifying multiple YAML
 documents in the same file. This is not the case here and is thus unnecessary,
-but it is good practice nonetheless. Next, all the code shown is part of a
-single play which is named "Install config files."
+but it is good practice regardless. Next, all the code shown is part of a single
+play which is named "Install config files."
 
 The "environmental state" of this play is all of the key-value pairs above the
 "tasks" directive: the name of the play, the machine on which it will run, and a
 variable accessible by each task in the play. As a side note, variables are
-accessed by double bracing with quotes as shown on lines 11 and 14.
+accessed by double bracing with quotes as shown on lines 11 and 15.
 
-Lastly, the tasks themselves. They each have a name and also a module, which
-fully describes their operation. In this case, each task uses the `copy` module
-to copy a single file to a destination directory. `src` and `dest` are
-parameters consumed by the copy module which define where files/directories
-should be copied to and from. Other parameters are available to the module and
-can be used to achieve more complex results. The [Ansible documentation](
+Lastly, the tasks themselves. They each have a name and a module, which fully
+describes their operation. In this case, each task uses the `copy` module to
+copy a single file to a destination directory. `src` and `dest` are parameters
+consumed by the copy module which define where files/directories should be
+copied to and from. Other parameters are available to the module and can be used
+to achieve more complex results. The [Ansible documentation](
 https://docs.ansible.com/) is excellent and describes all modules and their
 parameters clearly.
 
 ### Installing Packages
 
-For my systems, there are three types of package to install: Linux packages,
-Atom text editor packages, and Ruby gems. The package managers used for these
-package types, pacman, apm, and gem, are each represented slightly differently
-in Ansible. Both pacman and gem have an Ansible module abstraction (called
-`pacman` and `gem`, respectively), while apm must be run as a shell command.
-Thankfully, all three representations are straightforward to use. Let's look at
-pacman's usage.
+For my system, there are three types of package to install: Linux packages, Atom
+text editor packages, and Ruby gems. The package managers used for these package
+types, pacman, apm, and gem, are each represented slightly differently in
+Ansible. Both pacman and gem have an Ansible module abstraction (called `pacman`
+and `gem`, respectively), while apm must be run as a shell command. Thankfully,
+all three representations are straightforward to use. Let's look at pacman's
+usage.
 
 {% highlight yaml %}
 {% raw %}
@@ -129,8 +129,9 @@ pacman's usage.
 In the above code snippet, we invoke the `pacman` module and simply hand it a
 list of packages, named `pacman_packages`. We also specify that we want the
 latest version of each package. `pacman_packages` is a YAML list variable
-defined in a separate YAML file. This is the simplest type of package manager
-module because Ansible knows to loop over every item of the list automatically.
+defined in a separate YAML file. This is the simplest module implementation for
+a package manager because Ansible knows to loop over every item of the list
+automatically.
 
 Executing the other two package managers, as mentioned, works slightly
 differently. The `gem` module does not support list inputs to the `name`
@@ -147,7 +148,7 @@ lookup plugin:
 {% endraw %}
 {% endhighlight %}
 
-the Atom package manager, apm, is not implemented as an Ansible module.
+The Atom package manager, apm, is not implemented as an Ansible module.
 Therefore, it must be run as a shell command rather than a module.
 
 {% highlight yaml %}
@@ -208,7 +209,7 @@ collected from the command line when the Ansible script runs.
 
 ### Conclusion
 
-While I only needed thes features mentioned here to create my specific
+While I only needed these features mentioned here to create my specific
 installation procedure, Ansible supports many other tools and tricks. One can
 manage databases, edit partitions, send notifications through applications like
 Slack, and even run other configuration management tools such as Puppet.
