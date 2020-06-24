@@ -9,7 +9,7 @@ I have been an avid Linux user for the past five years and have run Arch Linux
 installations alongside Windows installations on most of my personal systems.
 Recently, I've decided to try out Manjaro since it has most of the feature set
 of Arch but with an extremely quick and convenient installation procedure.
-Instead of just installing it manually, though, I decided to apply some DevOps
+Instead of just installing it manually, I decided to apply some DevOps
 techniques to build a complete installation procedure which is simple to use,
 deploy, and update.
 
@@ -21,8 +21,8 @@ for system administrators to manage a cluster of servers from a central control
 server.
 
 For my use case, I can employ configuration management to automatically install
-a list of packages and install many "dotfiles", configuration files which define
-the behavior of applications like Bash, Vim, Atom, etc.
+lists of packages and configuration files for applications like Bash, Vim, Atom,
+etc.
 
 ### Ansible
 
@@ -49,13 +49,13 @@ for Ansible to operate upon.
 
 The functionality of Ansible is realized through the use of "playbooks". Each
 playbook is a [YAML](https://en.wikipedia.org/wiki/YAML) file which describes a
-set of actions. Since playbooks can effectively call other playbooks like they
-are functions, I divided up the installation process among multiple playbooks,
-with one main playbook that calls the other playbooks.
+set of actions. Since playbooks can effectively call other playbooks like
+functions, I split the installation process among multiple playbooks, with one
+main file that calls the rest.
 
 Within a playbook is a series of "plays", which are sets of instructions
 executed with some environmental state. This state can include a list of
-machines on which the instructions are executed, variables, source files, etc.
+machines (on which the instructions are executed), variables, source files, etc.
 
 Plays are further divided into "tasks", which are the individual instructions
 themselves. In general, tasks utilize "modules" to actually define the job they
@@ -86,11 +86,9 @@ Here's a simple playbook:
 {% endhighlight %}
 
 Let's break down the structure of this playbook. First, the playbook file itself
-begins with a line of three dashes. This is required when specifying YAML
-directives, as they would go above this line, or when specifying multiple YAML
-documents in the same file. This is not the case here and is thus unnecessary,
-but it is good practice regardless. Next, all the code shown is part of a single
-play which is named "Install config files."
+begins with a line of three dashes. While not technically required here, this is
+necessary when specifying YAML directives and in some other cases. Next, all the
+code shown is part of a single play which is named "Install config files."
 
 The "environmental state" of this play is all of the key-value pairs above the
 "tasks" directive: the name of the play, the machine on which it will run, and a
@@ -177,7 +175,7 @@ and passing it to Ansible, this still requires less effort than uploading SSH
 keys manually. These additional steps can be explained via command line print
 statements by the Ansible playbook as it runs.
 
-Editing the user setting is assomplished by using the `group`, `lininfile`, and
+Editing the user setting is accomplished by using the `group`, `lineinfile`, and
 `user` modules. These modules allow Ansible to add a "wheel" group, grant that
 group sudo privileges by editing the sudo config file, and then add the current
 user to that group. The wheel group is an administrative group often used to
