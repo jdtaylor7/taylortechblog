@@ -22,56 +22,54 @@ with how I approached testing
 
 The producer/consumer pattern is a general software pattern which describes the
 interaction between two parties, a producer and a consumer. Consider the
-following restaurant analogy: The kitchen is able to prepare a given number of
-meals in an hour. Customers, on the other hand, are able to order some different
-number of meals every hour. The meals are represented by receipts that are kept
-roughly in order, making sure each meal is processed in a timely manner.
+following restaurant analogy: The kitchen prepares meals at some average rate.
+Customers order meals at another, likely different, average rate. Meals are
+represented by receipts which ensure meals are processed in a timely manner and
+not lost. Ticket holders and computer systems bolster this meal tracking effort.
 
 In this example, we have the following elements:
+* Resource: Meals
 * Producer: Kitchen
 * Consumer: Customers
-* Resource: Meals
 * Production rate: Rate meals are made
 * Consumption rate: Rate meals are ordered
-* Receipts + ticket holder or computer: Tracking system
+* Receipts, ticket holders, computers: Tracking system
 
 This is the core of the producer/consumer scenario. Resources are generated and
-used at independent rates and some system must be in place in order to manage
-said resources.
+used at different rates and some system must be in place in order to manage said
+resources effectively.
 
 ### Bounded Buffers
 
 In the above restaurant scenario, the receipt tracking system is the "solution"
 to the meal tracking "problem". In software, the generalized solution to the
-producer system is a bounded buffer. A bounded buffer is essentially just a
-queue with specific access conditions. Let's take a look at a graphical
-representation of a bounded buffer here:
+producer/consumer problem is a bounded buffer. A bounded buffer is just a queue
+with specific access methods. Let's take a look at a graphical representation of
+a bounded buffer:
 
 {% include bounded_buffer.svg %}
 
-First, the buffer has a **capacity** which is defined when the buffer is
-created. This capacity may not exceeded under any circumstances. This is why the
-buffer is called "bounded". The **size** of the buffer, in keeping with the
-terminology of C++'s standard containers, is the current number of elements in
-the buffer. Since it is essentially a queue, elements are removed in the same
-order that they were placed into it: first in, first out (FIFO).
+First, the buffer has a **capacity** which defines the maximum number of
+elements that can be stored. This is why the buffer is called "bounded". The
+**size** of the buffer, in keeping with the terminology of C++'s standard
+containers, is the current number of elements in the buffer.
 
-Multiple producers are allowed, but only the producers are allowed to insert
-elements into the buffer. Multiple consumers are also permitted, and the only
-ones allowed to remove elements. The additional "access conditions" will be
-explored shortly.
+Since the buffer is a queue, elements are removed in the same order that they
+were placed into it: first in, first out (FIFO). Multiple producers and multiple
+consumers are permitted. Producers may only insert elements into the buffer,
+while consumers may only remove elements from it.
 
 ### Complications
 
 Before we continue, there are two main complications which must be addressed:
 
-1. Adding elements when the buffer is full
-2. Race conditions
+1. Adding elements to a full buffer (and removing elements from an empty buffer)
+2. Simultaneous access by multiple entities
 
-There are multiple ways to address the first complication. Of course it would be
-possible to use additional data structures to catch overflow data, but for the
-sake of this post let's assume we don't want to do that. With that in mind, there
-are four main solutions:
+There are multiple ways to address the first complication of adding data to a
+full buffer. Of course it would be possible to use additional data structures to
+catch overflow data, but for the sake of this post let's assume we don't want to
+do that. With that in mind, there are four main solutions:
 
 1. Do not add the element and mark the operation as failed
 2. Wait until there is space to add the element
@@ -82,11 +80,10 @@ expires
 The first three solutions can also be applied to the corresponding situation of
 removing elements when the buffer is empty.
 
-To expand upon the second complication, a race condition is caused when two
-threads of execution attempt to access a piece of data at the same time. Since
-bounded buffers are commonly used in multi-threaded cases, this is a common
-requirement for them. In short, thread-safety mechanisms must be employed to
-address this.
+The second complication is called a **race condition**, when two or more threads
+attempt to access a piece of data at the same time. Since bounded buffers are
+commonly used in multi-threaded cases, this is a common requirement for them. In
+short, thread-safety mechanisms must be employed to address this.
 
 Exploring all of the potential thread-safety mechanisms is beyond the scope of
 this post, but suffice it to say that a single
@@ -100,8 +97,8 @@ course can be seen in the library's source code.
 
 ### Interface
 
-I decided to base the buffer's interface off that of most standard library
-containers, for consistency and ease of use. Specifically, the
+I decided to base the bounded buffer's interface off that of most standard
+library containers, for consistency and ease of use. Specifically, the
 [queue](https://en.cppreference.com/w/cpp/container/queue) is the most similar
 C++ container to the bounded buffer. To that end, the class has the following
 access operations:
@@ -119,7 +116,7 @@ operations. This is a specific requirement for my use case and can be removed if
 you are using the code for your own project.
 
 For pushing/popping functionality, I implemented all of the access solutions
-mentioned above. They are:
+mentioned in the previous section:
 
 1. `try_push`/`try_pop`
 2. `push_wait`/`pop_wait`
@@ -132,20 +129,20 @@ Please make an issue or submit a pull request to the repo if you would like.
 ### Implementation
 
 Since the implementations of most of the buffer's functions are similar, we'll
-look in-depth at just two of the functions: `try_pop` and `push_wait_for`.
+dive into just two of them: `try_pop` and `push_wait_for`.
 
 First, `try_pop`:
 
-{% highlight cpp %}
+{% highlight cpp linenos %}
 template <typename T>
-std::shared_ptr<T> BoundedBuffer<T>::try_pop()
+std::unique_ptr<T> BoundedBuffer<T>::try_pop()
 {
     std::lock_guard<std::mutex> lk(m);
     if (q.empty())
     {
         return nullptr;
     }
-    auto rv = std::make_shared<T>(q.front());
+    auto rv = std::make_unique<T>(q.front());
     q.pop();
     q_has_space.notify_one();
     return rv;
@@ -155,29 +152,36 @@ std::shared_ptr<T> BoundedBuffer<T>::try_pop()
 The first order of business is to lock the buffer's mutex to ensure that race
 conditions do not occur. No other threads will be able to perform any actions on
 the bounded buffer, so we know the state of the buffer at the beginning of the
-function is the same at the end of the function. Utilizing a `lock_guard` makes
-this very easy and is a great application of
-[RAII](https://en.cppreference.com/w/cpp/language/raii).
+function is the same at the end of the function. Utilizing a `lock_guard` is
+easy and enforces [RAII](https://en.cppreference.com/w/cpp/language/raii) by
+automatically releasing the lock upon function completion.
 
-Next, we check to see whether there is any data to pop out of the buffer. If no
-data is present, the function fails immediately with a `nullptr`. This is a
-clean way of depicting function failure in C++, but there are many other ways.
-The function could throw an exception, return a pair consisting of a bool and
-the value, return a `std::optional`, etc.
+Next, we check to see whether there is any data to pop from the buffer. If no
+data is present, the function fails immediately and returns a  `nullptr`. This
+is a clean way of depicting function failure in C++, but there are many other
+ways. The function could throw an exception, return a pair consisting of a bool
+and the value, return a `std::optional`, etc.
 
-If there is indeed data in the buffer, the function continues by retrieving the next value and then popping it from the internal queue. Before returning the value, it calls a notify function on one of the buffer's internal condition variables. This notification will wake up the next `pop_wait` or `pop_wait_for` function that is waiting. This wake up will occur after the current `try_pop` function completes and unlocks the mutex.
+If there is data in the buffer, the function continues by retrieving the next
+value and then popping it from the internal queue. Before returning the value,
+it calls a notify function on one of the buffer's internal condition variables.
+This notification will allow the next `pop_wait` or `pop_wait_for` function to
+be woken up, if one is waiting. The wake up will actually occur after the current
+`try_pop` function completes and unlocks the mutex, not immediately.
 
 Now to look at `push_wait_for`:
 
-{% highlight cpp %}
+{% highlight cpp linenos %}
 template <typename T>
-bool BoundedBuffer<T>::push_wait_for(const T& e)
+bool BoundedBuffer<T>::push_wait_for(
+    const T& e,
+    std::chrono::milliseconds timeout)
 {
     bool success;
     std::unique_lock<std::mutex> lk(m);
     if (q_has_space.wait_for(lk,
-                             timeout,
-                             [this]{ return q.size() != cap; }))
+            timeout,
+            [this]{ return q.size() != cap; }))
     {
         q.push(e);
         success = true;
@@ -218,6 +222,11 @@ acknowledge this by incrementing `dropped` and set the `success` flag
 appropriately. Regardless of the success of this action, the buffer must now
 contain at least one element so the other condition variable can be notified.
 
+### Usage
+
+Many usage examples are present in the
+[tests](https://github.com/jdtaylor7/bounded_buffer/blob/master/test/bounded_buffer_test.cpp). Let's but we'll look at one of those tests here.
+
 ### Testing
 
 The bounded buffer has been tested in a number of ways, using [GoogleTest](https://github.com/google/googletest):
@@ -234,3 +243,8 @@ the buffer
 
 The code is located here [here](https://github.com/jdtaylor7/bounded_buffer).
 Suggestions and pull requests are welcome.
+
+### References
+1. \
+2. \
+3. \
