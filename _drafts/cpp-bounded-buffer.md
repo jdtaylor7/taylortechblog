@@ -16,41 +16,54 @@ with [GoogleTest](https://github.com/google/googletest) and is available [on
 Github](https://github.com/jdtaylor7/bounded_buffer) as a header-only library.
 Here I will talk through what bounded buffers are and how I implemented one.
 
-### Producer/Consumer Pattern
+## Producer/Consumer Pattern
 
 Before I dive into the bounded buffer itself, let me first explain the main
 scenario in which bounded buffers can be useful. The producer/consumer pattern
 is a general software pattern which describes the interaction between two
 parties, a producer and a consumer.
 
-Consider the following restaurant analogy: A kitchen prepares meals while
-customers order meals. Meals are represented by receipts which ensure meals are
-processed in a timely manner and are not lost. Ticket holders and computer
-systems bolster this meal tracking effort.
+Consider the following real-world analogy: A donut shop (the producer) generates
+donuts constantly while customers (the consumers) purchase donuts throughout the
+day. The donut uses traffic from previous days to predict how many donuts are
+needed at different times of the day. That being said, the customers themselves
+still have a element of unpredictability and as a whole do not purchase donuts
+at some exact rate. The shop uses racks to store the donuts, which are being
+emptied and replenished continuously.
 
 In this example, we have the following elements:
-* Resource: Meals
-* Producer: Kitchen
+* Resource: Donuts
+* Producer: Donut shop
 * Consumer: Customers
-* Receipts, ticket holders, computers: Tracking system
+* Storage mechanism: Donut racks
 
-This accurately models the producer/consumer scenario. Resources are generated
-and used by various parties, while some system manages said resources
-effectively. Resources can be produced/consumed at fixed rates, intermittently,
-or both. In addition, multiple producers and/or consumers are allowed.
+This is an example of the producer/consumer scenario. Resources are generated
+and used by various parties, while some mechanism holds the resources which are
+awaiting consumption. Resources can be produced/consumed at fixed rates,
+intermittently, or both. Multiple producers and/or consumers may be present.
 
-### Bounded Buffers
+Now let's explore an example more relevant to software.
 
-In the above restaurant scenario, the receipt tracking system is the "solution"
-to the meal tracking "problem". In software, the generalized solution to the
-producer/consumer problem is a bounded buffer. A bounded buffer is just a queue
-with specific access methods. Let's take a look at a graphical representation of
-a bounded buffer:
+
+uploading file online
+program receiving data from hardware
+
+
+## Bounded Buffers
+
+In the above donut shop scenario, the donut racks serve as a literal buffer
+between the donut-making machines and the customers. They also happen to be
+bounded by their size, which determines how many donuts they can hold. They
+allow for discrepancies between the production and consumption rates inherently
+present in a donut shop. In the same way, bounded buffers are used to solve
+problems related to mismatched production/consumption rates among multiple
+parties. In practice, a bounded buffer is just a queue with specific access
+procedures. Let's take a look at a graphical representation of a bounded buffer:
 
 {% include bounded_buffer.svg %}
 
 First, the buffer has a **capacity** which defines the maximum number of
-elements that can be stored. This is why the buffer is called "bounded". The
+elements that can be stored. This is why the buffer is called bounded. The
 **size** of the buffer, in keeping with the terminology of C++'s standard
 containers, is the current number of elements in the buffer.
 
@@ -59,25 +72,63 @@ were placed into it: first in, first out (FIFO). Multiple producers and multiple
 consumers are permitted. Producers may only insert elements into the buffer,
 while consumers may only remove elements from it.
 
-##### Buffer Access Conditions
+#### Buffer Access Procedures
 
 Bounded buffers have a few complications, the first of which is controlling
 producer/consumer access to the data. Namely, what to when adding data to a full
-buffer or removing data from an empty buffer. Of course it would be possible to
-use additional data structures to catch overflow data, but for the sake of this
-post let's assume we don't want to do that. With that in mind, there are four
-main solutions:
+buffer or removing data from an empty buffer. Remembering the donut shop
+example, what should be done when more donuts are made than can be held in the
+storage racks? Conversely, what should a customer do when no donuts are
+available in the storage racks? To answer the first problem, the theoretical
+solutions are:
+
+1. Discard the extra donuts
+2. Pause the donut assembly line until space is available
+3. Wait some finite amount of time for space to become available, but start
+throwing donuts out when that time passes
+4. Discard the oldest donuts from the racks to make space, then add the new
+donuts
+
+In real life, may not be sufficient. In an actual donut shop, additional
+solutions would likely be employed. More storage would be used, donut production
+would be slowed, and donut production would likely be slowed under similar
+future situations to prevent the problem from occurring again.
+
+These additional measures may or may not be under one's control in a software
+system, but regardless they are separate from the bounded buffer itself. The
+fourth option above would likely be used in concert with the additional
+solutions mentioned in the previous paragraph.
+
+Now let's look at a customer's options when no donuts are ready:
+
+1. Leave the donut shop
+2. Wait indefinitely for donuts to be available
+3. Wait a finite amount of time for donuts to be ready, then leave once this time
+passes.
+
+In real life, all but the second option are feasible. These options are the
+consumer's versions of the first three producer's options, while there is no
+consumer option corresponding to "discarding the oldest and using the newest
+one".
+
+Now let's map these donut shop options to a bounded buffer.
+
+For the producer:
 
 1. Do not add the element and mark the operation as failed
 2. Wait until there is space to add the element
-3. Wait some set amount of time for space to be created, then fail if the time
+3. Wait some set amount of time for space to be created, fail if the time
 expires
 4. Create space by removing an element, then add the element
 
-The first three solutions can also be applied to the corresponding situation of
-removing elements when the buffer is empty.
+For the consumer:
 
-##### Race Conditions
+1. Do not remove any elements and mark the operation as failed
+2. Wait until an element is present
+3. Wait a set amount of time for an element be available, fail if the time
+expires
+
+#### Race Conditions
 
 The other main complication with bounded buffers is that of **race conditions**.
 This is when multiple threads "race" to access a resource at "the same time". If
@@ -155,7 +206,7 @@ threads that data has been removed from a full buffer.
 The implementation of these concepts in C++ is detailed below, and of course can
 be seen in the library's source code.
 
-### Interface
+## Interface
 
 I decided to base the bounded buffer's interface off that of most standard
 library containers, for consistency and ease of use. Since bounded buffers are
@@ -186,7 +237,7 @@ mentioned in the previous section:
 I have not implemented `emplace` or `swap` operations but am open to doing so.
 Please make an issue or submit a pull request to the repo if you would like.
 
-### Implementation
+## Implementation
 
 Since the implementations of most of the buffer's functions are similar, we'll
 dive into just two of them: `try_pop` and `push_wait_for`.
@@ -288,7 +339,7 @@ acknowledge this by incrementing `dropped` and set the `success` flag
 appropriately. Regardless of the success of this action, the buffer must now
 contain at least one element so the other condition variable can be notified.
 
-### Testing and Usage
+## Testing and Usage
 
 Testing is done with [GoogleTest](https://github.com/google/googletest) and many
 usage examples of the bounded buffer can be found in the
@@ -403,7 +454,7 @@ highly recommend you look into
 [lambdas](https://en.cppreference.com/w/cpp/language/lambda), as they are quite
 convenient in these and other scenarios.
 
-### Conclusion
+## Conclusion
 
 The code is located [here](https://github.com/jdtaylor7/bounded_buffer).
 Suggestions and pull requests are welcome.
