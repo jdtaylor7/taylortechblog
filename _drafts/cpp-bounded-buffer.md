@@ -24,12 +24,12 @@ is a general software pattern which describes the interaction between two
 parties, a producer and a consumer.
 
 Consider the following real-world analogy: A donut shop (the producer) generates
-donuts constantly while customers (the consumers) purchase donuts throughout the
-day. The donut uses traffic from previous days to predict how many donuts are
-needed at different times of the day. That being said, the customers themselves
-still have a element of unpredictability and as a whole do not purchase donuts
-at some exact rate. The shop uses racks to store the donuts, which are being
-emptied and replenished continuously.
+donuts continuously while customers (the consumers) purchase donuts throughout
+the day. The donut uses traffic from previous days to predict how many donuts
+are needed at different times of the day. That being said, the customers
+themselves still have a element of unpredictability and as a whole do not
+purchase donuts at some exact rate. The shop uses racks to store the donuts,
+which are being emptied and replenished continuously.
 
 In this example, we have the following elements:
 * Resource: Donuts
@@ -42,12 +42,15 @@ and used by various parties, while some mechanism holds the resources which are
 awaiting consumption. Resources can be produced/consumed at fixed rates,
 intermittently, or both. Multiple producers and/or consumers may be present.
 
-Now let's explore an example more relevant to software.
+The producer/consumer problem arises in multiple areas of software. Some
+examples:
 
-
-uploading file online
-program receiving data from hardware
-
+* An operating system managing packet flow through network interfaces
+* A hardware device passing received data to a software application for
+processing, such as a thermostat passing temperature data to a home automation
+system
+* A game server receiving data from multiple clients and updating the game
+environment accordingly
 
 ## Bounded Buffers
 
@@ -55,10 +58,12 @@ In the above donut shop scenario, the donut racks serve as a literal buffer
 between the donut-making machines and the customers. They also happen to be
 bounded by their size, which determines how many donuts they can hold. They
 allow for discrepancies between the production and consumption rates inherently
-present in a donut shop. In the same way, bounded buffers are used to solve
-problems related to mismatched production/consumption rates among multiple
-parties. In practice, a bounded buffer is just a queue with specific access
-procedures. Let's take a look at a graphical representation of a bounded buffer:
+present in a donut shop. In the same way, bounded buffers are used to solve the
+general problem related to mismatched production/consumption rates among
+multiple parties.
+
+In practice, a bounded buffer is just a queue with specific access procedures.
+Let's take a look at a graphical representation of a bounded buffer:
 
 {% include bounded_buffer.svg %}
 
@@ -72,7 +77,7 @@ were placed into it: first in, first out (FIFO). Multiple producers and multiple
 consumers are permitted. Producers may only insert elements into the buffer,
 while consumers may only remove elements from it.
 
-#### Buffer Access Procedures
+#### Bounded Buffer Input/Output
 
 Bounded buffers have a few complications, the first of which is controlling
 producer/consumer access to the data. Namely, what to when adding data to a full
@@ -111,7 +116,7 @@ consumer's versions of the first three producer's options, while there is no
 consumer option corresponding to "discarding the oldest and using the newest
 one".
 
-Now let's map these donut shop options to a bounded buffer.
+Finally, let's map these donut shop options to those for a bounded buffer:
 
 For the producer:
 
@@ -131,12 +136,15 @@ expires
 #### Race Conditions
 
 The other main complication with bounded buffers is that of **race conditions**.
-This is when multiple threads "race" to access a resource at "the same time". If
-two threads are attempting to execute a function on a shared piece of data, it's
-possible for them to perfectly interleave. This can lead to incorrect results if
-not prevented. Let's see an example of this. Given the following function:
+A race condition occurs when multiple threads "race" to access a resource at
+"the same time". If two threads are attempting to execute a function at the same
+time, it's possible that one function will start executing while the other is
+already running. This can lead to incorrect results if not explicitly
+disallowed. Let's see an example of this. Given the following function:
 
 {% highlight cpp %}
+int global_val;
+
 void increment_global()
 {
     int tmp = global_val;
@@ -145,8 +153,8 @@ void increment_global()
 }
 {% endhighlight %}
 
-If two threads were to execute the code at the function at the same time, the
-results could look like this (in pseudocode):
+If two threads were to execute the function at the same time, the results could
+look like this (in pseudocode):
 
 {% highlight cpp %}
 int global_val = 1;
@@ -159,52 +167,83 @@ global_val = 2;  // thread A
 global_val = 2;  // thread B --> wrong value!
 {% endhighlight %}
 
-Now of course this is a silly pointless function, but the same situation can
-happen with nontrivial functions. The solution to this problem, with a bounded
-buffer, is to manage access to the buffer with a "lock".
+As you can see, the code of the two functions have become interleaved. Thread B
+is allowed to execute the function while thread A is still running the same
+function, resulting in thread B deducing the wrong value for `tmp` (it should be
+2 instead of 1). To be clear, the issue is not quite that two of the same
+function are being run in parallel - the same problem could arise if the two
+threads were running different functions. The real problem is that both threads
+access the same shared data (`global_val`) without a care in the world. Some
+kind of **access control** must be provided for the shared data. This is
+achieved with a **lock**, also called a
+[**mutex**](https://en.cppreference.com/w/cpp/thread/mutex) (short for mutual
+exclusion).
 
-A lock is a construct which can be "acquired" by a thread "atomically". This
-means that only one thread can own the lock at a time, and race conditions
-cannot occur while acquiring/releasing a lock. If we require that a lock be
-obtained before acting on a shared resource, then every instruction is safe
-while the lock is held. This enforces the following scenario,
-consistently (more pseudocode):
+A mutex can be compared to the lock on a porta potty. When approaching the
+stall, you first check the condition of the lock. If the lock is red, it means
+that someone is already using the toilet and you must wait. If the lock is
+green, the stall is unoccupied and access can be obtained. Just walking into the
+porta potty is insufficient, though. Upon entering the bathroom you must lock
+the stall, setting it to the occupied state so others know not to enter. Mutexes
+are similar in the sense that they are technically optional and may not always
+end up being required (for example, maybe no one tried to enter the bathroom
+while you were using it), but not using them can result in some unfortunate
+situations.
+
+There is some additional terminology concerning mutexes. They are said to be
+**acquired** and **released** when a thread obtains them or gives them up
+(locking and unlocking the bathroom stall, accordingly). Their operation is also
+said to be **atomic**, which means that no instructions from other threads can
+interrupt their operations. Other "normal" data types like regular Booleans are
+not atomic and thus cannot guarantee the prevention of race conditions like
+mutexes can.
+
+If we require that a lock be obtained before acting on a shared resource, then
+every instruction is safe while the lock is held. This enforces the following
+scenario, consistently (more pseudocode):
 
 {% highlight cpp %}
 int global_val = 1;
-lock lk;
+mutex global_val_mtx;
 
-// both threads attempt to acquire the lock, thread B succeeds
-lock(lk);        // thread B
-int tmp = 1;     // thread B
-tmp++;           // thread B
-global_val = 2;  // thread B
-unlock(lk);      // thread B
+// both threads attempt to acquire the lock, thread B succeeds (could have been
+// thread A)
+lock(global_val_mtx);    // thread B
+int tmp = 1;             // thread B
+tmp++;                   // thread B
+global_val = 2;          // thread B
+unlock(global_val_mtx);  // thread B
 
-lock(lk);        // thread A
-int tmp = 2;     // thread A
-tmp++;           // thread A
-global_val = 3;  // thread A
-unlock(lk);      // thread A --> correct value!
+lock(global_val_mtx);    // thread A
+int tmp = 2;             // thread A
+tmp++;                   // thread A
+global_val = 3;          // thread A --> correct value!
+unlock(global_val_mtx);  // thread A
 {% endhighlight %}
 
-The proper term for a lock is
-[mutex](https://en.cppreference.com/w/cpp/thread/mutex), which means "mutual
-exclusion". A bounded buffer requires one of these mutexes, along with two
-"condition variables", which are another type of thread-safety mechanism.
-[Condition
-variables](https://en.cppreference.com/w/cpp/thread/condition_variable) serve as
-alerts that some condition has been met.
+All of this discussion is to say the following: a bounded buffer implementation
+requires a mutex to provide access control to the underlying data. Proper mutex
+usage means that multiple producers/consumers are able to interact with the
+bounded buffer without causing problems.
 
-When a consumer is attempting to remove data from an empty buffer, for example,
-it may choose to wait until some data has been placed into the buffer. When a
-producer thread generates a piece of data and puts it into the buffer, it will
-alert any waiting consumer threads via a condition variable. The second
-conditional variable works in the other direction, alerting waiting producer
-threads that data has been removed from a full buffer.
+For bounded buffers in particular, there is one additional construct required
+for correct operation. This is called either a signal or a [condition
+variable](https://en.cppreference.com/w/cpp/thread/condition_variable).
+Condition variables threads to communicate that some condition has been met.
 
-The implementation of these concepts in C++ is detailed below, and of course can
-be seen in the library's source code.
+In a bounded buffer, this is necessary when one or more consumers are waiting
+for data to be placed into an empty buffer. Instead of constantly polling the
+buffer, which would use CPU cycles and not guarantee which consumer gets to
+claim the next piece of inputted data, all consumer threads will instead wait on
+a shared condition variable (in a queue). Producer threads manually notify the
+condition variable after putting data into the buffer. The condition variable
+will then wake up the next waiting consumer thread automatically. The same
+pattern works in the other direction: producer threads are put into a queue when
+the buffer is full, while consumer threads notify a second condition variable
+when empty space becomes available in the buffer.
+
+Example usage of both mutexes and condition variables will be presented in the
+next post. More examples are also present in the repository's source code.
 
 ## Interface
 
