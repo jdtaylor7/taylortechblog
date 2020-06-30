@@ -14,7 +14,11 @@ To address this, I implemented a thread-safe bounded buffer in C++ with multiple
 interfaces to satisfy different use-cases. The data structure is fully tested
 with [GoogleTest](https://github.com/google/googletest) and is available [on
 Github](https://github.com/jdtaylor7/bounded_buffer) as a header-only library.
-Here I will talk through what bounded buffers are and how I implemented one.
+
+This post discusses the background and motivation of bounded buffers, along with
+some of the requirements for an implementation and necessary multithreading
+concepts. The next post, part 2, will dive into the buffer interface and
+implementation.
 
 ## Producer/Consumer Pattern
 
@@ -135,9 +139,9 @@ expires
 
 #### Race Conditions
 
-The other main complication with bounded buffers is that of **race conditions**.
-A race condition occurs when multiple threads "race" to access a resource at
-"the same time". If two threads are attempting to execute a function at the same
+Another complication regarding bounded buffers is that of **race conditions**. A
+race condition occurs when multiple threads "race" to access a resource at "the
+same time". If two threads are attempting to execute a function at the same
 time, it's possible that one function will start executing while the other is
 already running. This can lead to incorrect results if not explicitly
 disallowed. Let's see an example of this. Given the following function:
@@ -221,13 +225,18 @@ global_val = 3;          // thread A --> correct value!
 unlock(global_val_mtx);  // thread A
 {% endhighlight %}
 
-All of this discussion is to say the following: a bounded buffer implementation
-requires a mutex to provide access control to the underlying data. Proper mutex
-usage means that multiple producers/consumers are able to interact with the
-bounded buffer without causing problems.
+All of this discussion is to say the following: a thread-safe bounded buffer
+implementation requires a mutex to provide access control to the underlying
+data. Proper mutex usage means that multiple producers/consumers are able to
+interact with the bounded buffer without causing problems. While a
+non-thread-safe bounded buffer would technically not require such a mechanism,
+this kind of bounded buffer would have very limited utility if threading was
+disallowed.
 
-For bounded buffers in particular, there is one additional construct required
-for correct operation. This is called either a signal or a [condition
+#### Condition Variables
+
+For bounded buffers, there is one additional construct required for correct
+operation. This is called either a signal or a [condition
 variable](https://en.cppreference.com/w/cpp/thread/condition_variable).
 Condition variables threads to communicate that some condition has been met.
 
@@ -237,14 +246,24 @@ buffer, which would use CPU cycles and not guarantee which consumer gets to
 claim the next piece of inputted data, all consumer threads will instead wait on
 a shared condition variable (in a queue). Producer threads manually notify the
 condition variable after putting data into the buffer. The condition variable
-will then wake up the next waiting consumer thread automatically. The same
-pattern works in the other direction: producer threads are put into a queue when
-the buffer is full, while consumer threads notify a second condition variable
-when empty space becomes available in the buffer.
+will then wake up the next waiting consumer thread automatically.
 
-Example usage of both mutexes and condition variables will be presented in the
-next post. More examples are also present in the repository's source code.
+Remembering back to the donut shop example, this would be akin to customers
+sitting down and waiting for donuts to become available (if no donuts are ready)
+instead of having to keep looking themselves. Once a donut is made, the customer
+waiting the longest is told.
+
+The same pattern works in the other direction: producer threads are put into a
+queue when the buffer is full, while consumer threads notify a second condition
+variable when empty space becomes available in the buffer.
 
 ## Conclusion
 
-Conclusion
+Now that we've covered the motivation for implementing bounded buffers and some
+of the high-level features associated with them, we are ready to get into the
+weeds of an actual implementation. That will be covered in part 2. We will
+discuss the API design, the C++ implementations of mutexes/condition variables,
+and the source code of some of the bounded buffer functions.
+
+[Here's](https://github.com/jdtaylor7/bounded_buffer) the repository.
+Suggestions and pull requests are welcome.
