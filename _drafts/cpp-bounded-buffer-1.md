@@ -42,14 +42,14 @@ In this example, we have the following elements:
 * Storage mechanism: Donut racks
 
 This is an example of the producer/consumer scenario. Resources are generated
-and used by various parties, while some mechanism holds the resources which are
-awaiting consumption. Resources can be produced/consumed at fixed rates,
-intermittently, or both. Multiple producers and/or consumers may be present.
+and used by various parties, while some mechanism holds the resources  awaiting
+consumption. Resources can be produced/consumed at fixed rates, intermittently,
+or both. Multiple producers and/or consumers may be present.
 
 The producer/consumer problem arises in multiple areas of software. Some
 examples:
 
-* An operating system managing packet flow through network interfaces
+* An operating system sending and receiving packets through network interfaces
 * A hardware device passing received data to a software application for
 processing, such as a thermostat passing temperature data to a home automation
 system
@@ -84,12 +84,11 @@ while consumers may only remove elements from it.
 #### Bounded Buffer Input/Output
 
 Bounded buffers have a few complications, the first of which is controlling
-producer/consumer access to the data. Namely, what to when adding data to a full
-buffer or removing data from an empty buffer. Remembering the donut shop
-example, what should be done when more donuts are made than can be held in the
-storage racks? Conversely, what should a customer do when no donuts are
-available in the storage racks? To answer the first problem, the theoretical
-solutions are:
+producer/consumer access to the data. Namely, how to add data to a full buffer
+or remove data from an empty buffer. Remembering the donut shop example, what
+should be done when more donuts are made than can be held in the storage racks?
+Conversely, what should a customer do when no donuts are available in the
+storage racks? To answer the first problem, the theoretical solutions are:
 
 1. Discard the extra donuts
 2. Pause the donut assembly line until space is available
@@ -98,10 +97,10 @@ throwing donuts out when that time passes
 4. Discard the oldest donuts from the racks to make space, then add the new
 donuts
 
-In real life, may not be sufficient. In an actual donut shop, additional
-solutions would likely be employed. More storage would be used, donut production
-would be slowed, and donut production would likely be slowed under similar
-future situations to prevent the problem from occurring again.
+In real life, these approaches may not be sufficient. In an actual donut shop,
+additional solutions would likely be employed. More storage would be used, donut
+production would be slowed, and donut production would likely be slowed under
+similar future situations to prevent the problem from occurring again.
 
 These additional measures may or may not be under one's control in a software
 system, but regardless they are separate from the bounded buffer itself. The
@@ -115,10 +114,8 @@ Now let's look at a customer's options when no donuts are ready:
 3. Wait a finite amount of time for donuts to be ready, then leave once this time
 passes.
 
-In real life, all but the second option are feasible. These options are the
-consumer's versions of the first three producer's options, while there is no
-consumer option corresponding to "discarding the oldest and using the newest
-one".
+These options correspond to the first three producer’s options, since the fourth
+is not possible from the consumer’s perspective.
 
 Finally, let's map these donut shop options to those for a bounded buffer:
 
@@ -134,17 +131,17 @@ For the consumer:
 
 1. Do not remove any elements and mark the operation as failed
 2. Wait until an element is present
-3. Wait a set amount of time for an element be available, fail if the time
+3. Wait a set amount of time for an element to be available, fail if the time
 expires
 
 #### Race Conditions
 
 Another complication regarding bounded buffers is that of **race conditions**. A
-race condition occurs when multiple threads "race" to access a resource at "the
-same time". If two threads are attempting to execute a function at the same
-time, it's possible that one function will start executing while the other is
-already running. This can lead to incorrect results if not explicitly
-disallowed. Let's see an example of this. Given the following function:
+race condition occurs when multiple threads "race" to access a resource at the
+same time. If two threads are attempting to execute a function at the same time,
+it's possible that one function will start executing while the other is already
+running. This can lead to incorrect results if not explicitly disallowed. Let's
+see an example of this. Given the following function:
 
 {% highlight cpp %}
 int global_val;
@@ -157,50 +154,64 @@ void increment_global()
 }
 {% endhighlight %}
 
-If two threads were to execute the function at the same time, the results could
+If two threads were to execute the function at the same time, the results should
 look like this (in pseudocode):
 
 {% highlight cpp %}
 int global_val = 1;
 
-int tmp = 1;  // thread A
-int tmp = 1;  // thread B
-tmp++;  // thread A
-tmp++;  // thread B
-global_val = 2;  // thread A
-global_val = 2;  // thread B --> wrong value!
+int tmpA = global_val (1);  // thread A
+tmpA++ (2);  // thread A
+global_val = tmpA (2);  // thread A
+
+int tmpB = global_val (2);  // thread B
+tmpB++ (3);  // thread B
+global_val = tmpB (3);  // thread B --> correct value!
 {% endhighlight %}
 
-As you can see, the code of the two functions have become interleaved. Thread B
-is allowed to execute the function while thread A is still running the same
-function, resulting in thread B deducing the wrong value for `tmp` (it should be
-2 instead of 1). To be clear, the issue is not quite that two of the same
-function are being run in parallel - the same problem could arise if the two
-threads were running different functions. The real problem is that both threads
-access the same shared data (`global_val`) without a care in the world. Some
-kind of **access control** must be provided for the shared data. This is
-achieved with a **lock**, also called a
+But as it stands, they could look like this (still pseudocode):
+
+{% highlight cpp %}
+int global_val = 1;
+
+int tmpA = global_val (1);  // thread A
+int tmpB = global_val (1);  // thread B
+tmpA++ (2);  // thread A
+tmpB++ (2);  // thread B
+global_val = tmpA (2);  // thread A
+global_val = tmpB (2);  // thread B --> wrong value!
+{% endhighlight %}
+
+Instead of thread A running to completion before thread B starts, the code of
+the two functions could become interleaved. This would cause thread B to use the
+wrong initial value for `global_val` (1) instead of the intended value (2). To
+be clear, the issue is not quite that two of the *same* function are being run
+in parallel - the same problem could arise if the two threads were running
+different functions. The real problem is that both threads access the same
+shared data (`global_val`) without any restrictions. Some kind of **access
+control** must be provided for the shared data. This is achieved with a
+**lock**, also called a
 [**mutex**](https://en.cppreference.com/w/cpp/thread/mutex) (short for mutual
 exclusion).
 
 A mutex can be compared to the lock on a porta potty. When approaching the
 stall, you first check the condition of the lock. If the lock is red, it means
 that someone is already using the toilet and you must wait. If the lock is
-green, the stall is unoccupied and access can be obtained. Just walking into the
-porta potty is insufficient, though. Upon entering the bathroom you must lock
-the stall, setting it to the occupied state so others know not to enter. Mutexes
-are similar in the sense that they are technically optional and may not always
-end up being required (for example, maybe no one tried to enter the bathroom
-while you were using it), but not using them can result in some unfortunate
-situations.
+green, the stall is unoccupied and access can be obtained. Claiming a porta
+potty for oneself requires more than just walking in and closing the door,
+though. Upon entering the bathroom you must lock the stall, setting it to the
+occupied state so others know not to enter. Mutexes are similar in the sense
+that they are technically optional and may not always end up being required (for
+example, maybe no one tried to enter the bathroom while you were using it). Not
+using them, however, can result in some unfortunate situations.
 
 There is some additional terminology concerning mutexes. They are said to be
 **acquired** and **released** when a thread obtains them or gives them up
 (locking and unlocking the bathroom stall, accordingly). Their operation is also
 said to be **atomic**, which means that no instructions from other threads can
-interrupt their operations. Other "normal" data types like regular Booleans are
-not atomic and thus cannot guarantee the prevention of race conditions like
-mutexes can.
+interrupt their operations. Operations including "normal" data types like
+regular Booleans are not atomic and thus cannot guarantee the prevention of race
+conditions like mutexes can.
 
 If we require that a lock be obtained before acting on a shared resource, then
 every instruction is safe while the lock is held. This enforces the following
@@ -225,20 +236,19 @@ global_val = 3;          // thread A --> correct value!
 unlock(global_val_mtx);  // thread A
 {% endhighlight %}
 
-All of this discussion is to say the following: a thread-safe bounded buffer
-implementation requires a mutex to provide access control to the underlying
-data. Proper mutex usage means that multiple producers/consumers are able to
-interact with the bounded buffer without causing problems. While a
-non-thread-safe bounded buffer would technically not require such a mechanism,
-this kind of bounded buffer would have very limited utility if threading was
-disallowed.
+All of this discussion is to say the following: a bounded buffer requires a
+mutex in order to be considered **thread safe**. This means that multiple
+threads can use the bounded buffer without causing any problems due to race
+conditions. Because of the scenarios bounded buffers are used in, thread-safety
+is often a requirement.
 
 #### Condition Variables
 
 For bounded buffers, there is one additional construct required for correct
 operation. This is called either a signal or a [condition
 variable](https://en.cppreference.com/w/cpp/thread/condition_variable).
-Condition variables threads to communicate that some condition has been met.
+Condition variables allow threads to communicate that some condition has been
+met.
 
 In a bounded buffer, this is necessary when one or more consumers are waiting
 for data to be placed into an empty buffer. Instead of constantly polling the
