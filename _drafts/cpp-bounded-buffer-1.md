@@ -161,12 +161,12 @@ look like this (in pseudocode):
 int global_val = 1;
 
 int tmpA = global_val (1);  // thread A
-tmpA++ (2);  // thread A
-global_val = tmpA (2);  // thread A
+tmpA++ (2);                 // thread A
+global_val = tmpA (2);      // thread A
 
 int tmpB = global_val (2);  // thread B
-tmpB++ (3);  // thread B
-global_val = tmpB (3);  // thread B --> correct value!
+tmpB++ (3);                 // thread B
+global_val = tmpB (3);      // thread B --> correct value!
 {% endhighlight %}
 
 But as it stands, they could look like this (still pseudocode):
@@ -251,21 +251,36 @@ Condition variables allow threads to communicate that some condition has been
 met.
 
 In a bounded buffer, this is necessary when one or more consumers are waiting
-for data to be placed into an empty buffer. Instead of constantly polling the
-buffer, which would use CPU cycles and not guarantee which consumer gets to
-claim the next piece of inputted data, all consumer threads will instead wait on
-a shared condition variable (in a queue). Producer threads manually notify the
+for data to be placed into an empty buffer. After executing a wait command, each
+consumer thread is put into a queue corresponding to the shared condition
+variable it is waiting on. When the condition variable is notified, the next
+consumer thread is allowed to run. Producer threads manually notify the
 condition variable after putting data into the buffer. The condition variable
 will then wake up the next waiting consumer thread automatically.
 
-Remembering back to the donut shop example, this would be akin to customers
-sitting down and waiting for donuts to become available (if no donuts are ready)
-instead of having to keep looking themselves. Once a donut is made, the customer
-waiting the longest is told.
+Waiting on a condition variable is in contrast to a polling strategy. In a
+polling strategy, the next waiting consumer thread in the queue would
+continuously check the status of the buffer. Once it finds an available piece of
+data in the bounded buffer, it starts running. This is more wasteful of CPU
+cycles since polling requires the thread to be actively doing something, while
+condition variables allow the thread to be put fully to sleep.
 
-The same pattern works in the other direction: producer threads are put into a
-queue when the buffer is full, while consumer threads notify a second condition
-variable when empty space becomes available in the buffer.
+Remembering back to the donut shop example, the waiting strategy is akin to
+customers sitting down and waiting for donuts to become available if none are
+ready. Once a donut is made, the customer waiting the longest is alerted. The
+polling strategy, on the other hand, corresponds to the customers repeated
+checking whether donuts are ready.
+
+The same pattern works in the other direction: producer threads are also put
+into their own queue when the buffer is full, while consumer threads notify a
+second condition variable when empty space becomes available in the buffer. To
+be explicit, the bounded buffer contains two thread queues and two condition
+variables:
+
+* One queue to store waiting consumer threads
+* One condition variable to notify data is available in the buffer
+* One queue to store waiting producer threads
+* One condition variable to notify empty space is available in the buffer
 
 ## Conclusion
 
