@@ -1,17 +1,21 @@
 ---
 layout: post
-title: "C++ Bounded Buffer Part 2"
+title: "C++ Bounded Buffers, Part 2"
 description: "Implementing a Thread-Safe Bounded Buffer in C++"
-tags: [cpp, concurrency]
+tags: [cpp, multithreading]
 ---
 
-Introduction
+This is the second of two blog posts about bounded buffers. In [part
+1](https://www.taylortechblog.com/posts/cpp-bounded-buffer-1) we discussed the
+types of problems bounded buffers can solve and how bounded buffers function at
+a high level. Here we will discuss the interface for a bounded buffer, my
+implementation, and how to use my implementation.
 
 ## Interface
 
 I decided to base the bounded buffer's interface off that of most standard
 library containers, for consistency and ease of use. Since bounded buffers are
-queues, it first draws inspiration from the C++
+queues, it primarily draws inspiration from the C++
 [queue](https://en.cppreference.com/w/cpp/container/queue) container. To that
 end, the class has the following access operations:
 
@@ -21,8 +25,8 @@ end, the class has the following access operations:
 * `back`
 
 It also draws inspiration from the
-[vector](https://en.cppreference.com/w/cpp/container/vector) container and thus
-includes `capacity` and `clear` operations. Lastly, I wanted a
+[vector](https://en.cppreference.com/w/cpp/container/vector) container by
+including the `capacity` and `clear` operations. Lastly, I wanted a
 `dropped_elements` access operation which tracks the number of failed push
 operations. This is a specific requirement for my use case and can be removed if
 you are using the code for your own project.
@@ -34,6 +38,9 @@ mentioned in the previous section:
 2. `push_wait`/`pop_wait`
 3. `push_wait_for`/`pop_wait_for`
 4. `force_push`
+
+`dropped_elements` tracks the number of failed `try_push` and `push_wait_for`
+operations, specifically.
 
 I have not implemented `emplace` or `swap` operations but am open to doing so.
 Please make an issue or submit a pull request to the repo if you would like.
@@ -62,22 +69,27 @@ std::unique_ptr<T> BoundedBuffer<T>::try_pop()
 {% endhighlight %}
 
 The first order of business is to lock the buffer's mutex to ensure that race
-conditions do not occur. Any other threads attempting to interact with the
-buffer in the meantime must either wait or fail. Utilizing a `lock_guard` is
-easy and enforces [RAII](https://en.cppreference.com/w/cpp/language/raii) by
-automatically releasing the lock upon function completion.
+conditions do not occur, as discussed in part 1. Any other threads attempting to
+interact with the buffer in the meantime must either wait or fail. Utilizing a
+`lock_guard` is easy and enforces
+[RAII](https://en.cppreference.com/w/cpp/language/raii) by automatically
+releasing the lock upon function exit.
 
 Next, we check to see whether there is any data to pop from the buffer. If no
-data is present, the function fails immediately and returns a  `nullptr`. This
+data is present, the function fails immediately by returning a  `nullptr`. This
 is a clean way of depicting function failure in C++, but there are many other
 ways. The function could throw an exception, return a pair consisting of a bool
 and the value, return a `std::optional`, etc.
 
-If there is data in the buffer, the function continues by retrieving the next
-value and then popping it from the internal queue. Before returning the value,
-it calls a notify function on one of the buffer's internal condition variables.
-This notification will allow the next `pop_wait` or `pop_wait_for` function to
-be woken up and executed after this function has finished.
+If the function has not failed, it continues by retrieving the next value and
+then popping it from the internal queue. Before returning the value, it calls a
+notify function on one of the buffer's internal condition variables. This
+notification will allow the next `pop_wait` or `pop_wait_for` function to be
+woken up and executed after this function has finished.
+
+*Quick note: Pop operations in queues/stacks often only remove an element from
+the data structure, without returning said value to the caller. Sometimes they
+do both, as is the case with my implementation.*
 
 Now to look at `push_wait_for`:
 
@@ -259,3 +271,8 @@ convenient in these and other scenarios.
 
 The code is located [here](https://github.com/jdtaylor7/bounded_buffer).
 Suggestions and pull requests are welcome.
+
+## References
+* [RAII](https://en.cppreference.com/w/cpp/language/raii)
+* [Predicates](https://en.cppreference.com/w/cpp/named_req/Predicate)
+* [Lambdas](https://en.cppreference.com/w/cpp/language/lambda)

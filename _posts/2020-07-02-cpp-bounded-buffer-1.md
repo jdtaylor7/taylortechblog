@@ -2,7 +2,7 @@
 layout: post
 title: "C++ Bounded Buffers, Part 1"
 description: "Introduction to Bounded Buffers"
-tags: [cpp, concurrency]
+tags: [cpp, multithreading]
 ---
 
 As part of an autonomous drone project I'm working on, I created a program which

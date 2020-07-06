@@ -1,4 +1,0 @@
----
-slug: concurrency
-name: Concurrency
----
