@@ -64,11 +64,12 @@ provides insight into the drone’s state in real-time.
 
 The pipeline is architected as follows:
 
-* On every control loop cycle, drone sends data to on-board telemetry transmitter
+* On every control loop cycle, drone flight controller gathers data from sensors
+and sends it to on-board telemetry transmitter
 * Drone’s telemetry transmitter downlinks this data to telemetry receiver (PCB
 connected to a computer via USB)
-* Telemetry receiver forwards drone data to ground station (desktop/laptop)
-* Ground station displays drone data via viewing application
+* Telemetry receiver forwards drone data to viewing application on a computer
+(desktop/laptop)
 
 {% include image.html path="telemetry-pipeline-diagram.png"
 path-detail="telemetry-pipeline-diagram@2x.png" %}
