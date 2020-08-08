@@ -2,7 +2,7 @@
 layout: post
 title: "Drone Project Introduction"
 description: "Goals and Components of the Project"
-tags: [drone, cpp, cpp17, hardware, control theory]
+tags: [drone, cpp, cpp17, hardware, control_theory]
 ---
 
 This is the first post of many documenting my drone project. This is the largest
