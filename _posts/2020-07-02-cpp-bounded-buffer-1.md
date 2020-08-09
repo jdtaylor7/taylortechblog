@@ -70,7 +70,7 @@ In practice, a bounded buffer is just a queue with specific input/output
 properties. Let's look at a graphical representation of a bounded buffer:
 
 {% include image.html path="bounded-buffer.png"
-path-detail="bounded-buffer@2x.png" alt="Chalk intro" %}
+path-detail="bounded-buffer@2x.png" alt="Bounded buffer graphic" %}
 
 First, the buffer has a **capacity** which defines the maximum number of
 elements that can be stored. This is why the buffer is called bounded. The

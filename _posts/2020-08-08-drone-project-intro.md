@@ -71,7 +71,8 @@ sensors and sends it to an on-board telemetry transmitter
 * The telemetry receiver then forwards the data to a desktop viewing application
 
 {% include image.html path="telemetry-pipeline-diagram.png"
-path-detail="telemetry-pipeline-diagram@2x.png" %}
+path-detail="telemetry-pipeline-diagram@2x.png" alt="Diagram of telemetry
+pipeline" %}
 
 The “viewing application” mentioned above renders a model of the drone in a 3D
 environment which allows for a visual inspection of the drone’s state. This

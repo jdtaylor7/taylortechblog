@@ -32,7 +32,7 @@ dabbled with configuration management before, I decided to use Ansible because
 it is quite easy to set up and has a large following.
 
 {% include image.html path="ansible-logo-wide.png"
-path-detail="ansible-logo-wide.png" alt="Chalk intro" %}
+path-detail="ansible-logo-wide.png" alt="Ansible logo" %}
 
 Ansible uses the "push" model of configuration management, meaning that a
 central server pushes configuration settings to various clients. It is also
