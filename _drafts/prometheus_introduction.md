@@ -110,10 +110,38 @@ satisfied with the result of these OpenGL endeavors.
 
 As mentioned in the previous section, Prometheus must be able to receive data
 from a drone system. I have chosen to implement this communication interface in
-hardware as a custom-designed transmitter/receiver pair of PCBs.
+hardware as a custom-designed transmitter/receiver pair of PCBs. The transmitter
+is located on the drone itself, connected to the drone's flight computer. The
+receiver (the ground station) connects to a desktop via USB.
 
-### Additional Features
+For simplicity's sake, the ground station imitates a serial device over USB, in
+the same way that Arduino boards do. Whenever this board receives a telemetry
+packet from the drone, it will forward that data on to Prometheus via the
+desktop.
 
-This is a list of additional features
+In the demo at the beginning of this post, the data streaming in is being
+generated from an Arduino UNO. For testing purposes, UNO boards can easily
+substitute the custom ground station hardware that I am building.
+
+Serial communication was handled with the excellent
+[LibSerial](https://github.com/crayzeewulf/libserial/) library. While the
+connections provided by the library are synchronous, Prometheus has no real need
+for asynchronous reads/writes so this works just fine for our purposes.
+
+### Other Interesting Features
+
+While not really core to the project, some of these smaller features may be
+interesting to some. I may write separate posts about some of them in the
+future.
+
+* Logging
+* Compatibility testing with CircleCI and Docker
+* Creating high-quality GIFs in Linux
 
 ### Conclusion
+
+Prometheus is officially up and running and can be used to debug control
+algorithms, which was my goal for this release of the tool. Development and
+testing of control algorithms can now begin in earnest.
+
+As always, suggestions and feedback are welcome!
