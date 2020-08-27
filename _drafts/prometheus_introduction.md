@@ -2,8 +2,12 @@
 layout: post
 title: "Introducing Prometheus"
 description: "Drone Simulation and Monitoring Application"
-tags: [cpp, drone, opengl, prometheus]
+tags: [cpp, drone, opengl]
 ---
+
+<p align="center">
+{% include image.html path="prometheus_logo.png" path-detail="prometheus_logo.png" alt="prometheus logo" %}
+</p>
 
 In my last post, I introduced a hobby drone project I have been working on. In
 that post I laid out the scope and goals of the project as whole, without going
@@ -20,7 +24,7 @@ its final iteration, it will be a multifaceted tool which can:
 As of the tool’s most recent v0.2.0 release, Prometheus is capable of the third
 point above. While being provided with a stream of real-time data (position and
 orientation in the time domain), Prometheus visually represents the state of the
-drone in a 3D environment. A short demo of the tool is below.
+drone in a 3D environment. A short demo of the tool is below:
 
 {% include image.html path="prometheus_demo.gif" path-detail="prometheus_demo.gif" alt="prometheus demo gif" %}
 
@@ -38,7 +42,7 @@ libraries support the graphics side of the codebase, which can be found in the
 
 At the moment the tool is supported on Arch Linux and Ubuntu Focal (20.04 LTS).
 A CircleCI pipeline tests compatibility with these systems via associated
-Docker images.
+Docker images. I'm considering discussing this pipeline in a future post.
 
 ### Dependencies
 
@@ -106,7 +110,7 @@ shape and texture rendering, but also model loading and rudimentary lighting
 (the small blue cube is a light source, if that wasn't clear). I am quite
 satisfied with the result of these OpenGL endeavors.
 
-### IO
+### Communications Interfaces
 
 As mentioned in the previous section, Prometheus must be able to receive data
 from a drone system. I have chosen to implement this communication interface in
@@ -127,16 +131,6 @@ Serial communication was handled with the excellent
 [LibSerial](https://github.com/crayzeewulf/libserial/) library. While the
 connections provided by the library are synchronous, Prometheus has no real need
 for asynchronous reads/writes so this works just fine for our purposes.
-
-### Other Interesting Features
-
-While not really core to the project, some of these smaller features may be
-interesting to some. I may write separate posts about some of them in the
-future.
-
-* Logging
-* Compatibility testing with CircleCI and Docker
-* Creating high-quality GIFs in Linux
 
 ### Conclusion
 
