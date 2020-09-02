@@ -33,9 +33,8 @@ this case) and plotting that data while also using the data to position the
 drone model in the 3D environment. The data in question is noisy data centered
 about position (0, 2, 0) and orientation (0, 0, 0).
 
-While the application is technically not a simulator at this point in time, that
-is its ultimate purpose and I will thus refer to it as a simulator throughout
-this post.
+While not the case today, Prometheus is ultimately meant to be a simulator.
+Therefore, I'll be referring to it as such throughout this post.
 
 ### Interface
 
@@ -60,7 +59,7 @@ two modes, telemetry and edit. Telemetry mode is for reading data from the
 drone, while edit mode is for repositioning the camera and drone manually
 * Controls: Changes depending on the application mode. Telemetry mode, for
 example, allows the user to see available devices, connect to one, and ensure
-that the correct device is being read from
+that the correct device is being read
 
 The interface will change and grow in scope as simulation capabilities and other
 features are added to Prometheus.
@@ -69,13 +68,13 @@ features are added to Prometheus.
 
 Personally, I highly value visual representation of data. If I can hold a drone
 in my hand, rotate it, and see that movement matched in a graphical environment,
-I can much more easily check the correctness of the data pipeline, sensors,
-control algorithm, etc. Thus, this is a core requirement of the simulator.
+then I can easily check the correctness of the data pipeline, sensors, control
+algorithm, etc. Thus, this is a core requirement of the simulator.
 
 To achieve this, I decided to implement the graphical component of the tool in
 OpenGL. Since I had not touched OpenGL before, I leaned heavily on
 [LearnOpenGL](https://learnopengl.com/), which is an excellent tutorial provided
-by Joey de Vries. If you are interested in learning OpenGL yourself, I would
+by Joey de Vries. If you are interested in learning OpenGL yourself I would
 highly recommend it as a resource.
 
 A certain level of graphical fidelity also helps a piece of software feel more
@@ -91,12 +90,12 @@ hardware as a custom pair of wireless transmitter/receiver PCBs. The transmitter
 is located on the drone itself, connected to the drone's flight computer. The
 receiver (the ground station) connects to a desktop via USB.
 
-For simplicity's sake, the ground station imitates a serial device over USB, in
-the same way that Arduino boards do. Whenever this board receives a telemetry
-packet from the drone, it will forward that data to the simulator via the
-desktop. In the demo at the beginning of this post, the data is being generated
-from an Arduino UNO. For testing purposes, Arduino boards can serve as a quick
-substitute for the custom ground station hardware that I am building.
+For simplicity's sake, the ground station imitates a serial device over USB,
+just liek an Arduino. Whenever this board receives a telemetry packet from the
+drone, it will forward that data to the simulator via the desktop. In the demo
+at the beginning of this post, the data is being generated from an Arduino UNO.
+For testing purposes, Arduino boards can serve as a quick substitute for the
+custom ground station hardware that I am building.
 
 Serial communication was handled with the excellent
 [LibSerial](https://github.com/crayzeewulf/libserial/) library. While the
