@@ -21,7 +21,7 @@ iteration, it will be a multifaceted tool which can:
 2. Refine a drone system’s control algorithm
 3. Monitor a running drone system in real-time
 
-As of the tool’s most recent v0.2.0 release on Github, Prometheus is capable of
+As of the tool’s most recent v0.2.1 release on Github, Prometheus is capable of
 the third point above. When provided with a stream of real-time drone data
 (position and orientation data), Prometheus visually represents the state of the
 drone in a 3D environment. A short demo of the tool is below:
