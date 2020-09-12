@@ -2,7 +2,7 @@
 layout: post
 title: "Macros in C and C++"
 description: "TODO"
-tags: [cpp]
+tags: [cpp, compilers]
 ---
 
 While a quite divisive topic in C++, macros are still widely used in legacy code
@@ -43,7 +43,7 @@ linker, is called automatically by the compiler during the compilation process.
 It is also compatible with multiple languages in the C family: namely C, C++,
 Objective-C, and Fortran.
 
-GCC's preprocess is called "Cpp" (confusingly enough) and is packaged as a
+GCC's preprocessor is called "CPP" (confusingly enough) and is packaged as a
 separate binary. You can run this tool manually to see the effects of
 preprocessing firsthand if you like, which I discuss
 [below](#running-the-preprocessor-manually).
@@ -60,9 +60,17 @@ Link to [cppreference here](https://en.cppreference.com/w/c/language/translation
 
 #### Function-like macros
 
+Function-like macros are operate similarly to regular functions by accepting
+one or more arguments.
+
 Briefly mention variadic macros and than link to the [GCC
 documentation](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros)
 about them.
+
+## Tokens and Preprocessor Tokens
+
+Before discussing the # and ## operators in the next section, it's necessary to
+first explain the concepts of tokens and preprocessor tokens.
 
 ## Preprocessor Operators: # and ##
 
@@ -70,7 +78,7 @@ about them.
 
 #### Double hash sign: Token concatenating
 
-## C++ Differences
+## C++ Differences: TODO keep?
 
 ## Running the Preprocessor Manually
 
