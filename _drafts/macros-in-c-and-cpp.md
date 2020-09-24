@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "Macros in C and C++"
-description: "TODO"
+description: "How and Why They Work"
 tags: [cpp, compilers]
 ---
 
-While a quite divisive topic in C++, macros are still widely used in legacy code
+While quite a divisive topic in C++, macros are still widely used in legacy code
 and for niche cases in modern code. As such, understanding them is still
 necessary in C++.
 
@@ -235,57 +235,216 @@ tokens.
 
 #### Single hash operator #: Stringizing
 
+The single hash operator allows us to *stringize* the argument. Essentially this
+just converts the argument into a string constant. Instead of interpreting the
+argument as a normal set of tokens, the entire argument is converted into one
+string literal token. A simple example can be shown with another print macro:
 
+{% highlight cpp%}
+#define PRINT_RESULT(exp) printf(#exp " = ", exp)
+PRINT_RESULT(2 + 3);
+{% endhighlight %}
 
-#### Double hash operator \##: Token concatenating
+The code above would be preprocessed into the following:
 
+{% highlight cpp %}
+printf("2 + 3" " = ", 2 + 3);
+{% endhighlight %}
 
+Notice that the stringized argument ends up adjacent to the string literal that
+was already present in the macro definition. This is the correct way of using
+stringized arguments since adjacent string literal tokens are concatenated
+during compilation (in compilation step 6, specifically).
 
-## C++ Differences: TODO keep?
+#### Double hash operator \##: Token concatenating/pasting
+
+While the single hash operator allows us to convert a token into a string
+literal token, the double hash operator allows us to combine tokens. This is
+called *token concatenation* (or *token pasting*).
+
+As a simple example, token concatenation can be used to declare multiple
+variables of the same type:
+
+{% highlight cpp %}
+#define THREE_INTS(name) int name##1, name##2, name##3
+THREE_INTS(foo);
+{% endhighlight %}
+
+This generates the following code:
+
+{% highlight cpp %}
+int foo1, foo2, foo3;
+{% endhighlight %}
+
+Due to token pasting, `foo1`, `foo2`, and `foo3` are valid tokens.
+
+Token concatenation can also be used for more complicated tasks. One prime
+example is creating [*X macros*](https://en.wikipedia.org/wiki/X_Macro), which
+are macros that maintain two related lists. A common usage of this is to
+reliably generate a list of strings corresponding to the enumerators in an
+enumeration. Let's see this in action. Say we want to create an enumeration with
+all possible color values for a given application. We also want to print these
+options out to the user.
+
+{% highlight cpp %}
+#define COLOR_LIST \
+    X(red), \
+    X(blue), \
+    X(green)
+
+// First we create the enum.
+enum class colors {
+#define X(name) COLOR_##name
+COLOR_LIST
+#undef X
+};
+
+// Next, we define the list of strings.
+std::vector<std::string> color_names = {
+#define X(name) #name
+COLOR_LIST
+#undef X
+};
+{% endhighlight %}
+
+Expanding the `COLOR_LIST` macro results in the following code:
+
+{% highlight cpp %}
+enum class colors {
+#define X(name) COLOR_##name
+X(red), X(blue), X(green)
+#undef X
+};
+
+std::vector<std::string> color_names = {
+#define X(name) #name
+X(red), X(blue), X(green)
+#undef X
+};
+{% endhighlight %}
+
+And then expanding the `X` macros would result in the final code:
+
+{% highlight cpp %}
+enum class colors {
+COLOR_red, COLOR_blue, COLOR_green
+};
+
+std::vector<std::string> color_names = {
+"red", "blue", "green"    
+};
+{% endhighlight %}
+
+The stringization and pasting operators can be used for many applications of
+this concept.
+
+#### Two Layers of Indirection
+
+One important aspect of the stringization and token-pasting operators is that
+they don't expand macros themselves. As a result, an additional layer of
+indirection must be used to handle all cases correctly. Let's see some examples.
+
+{% highlight cpp %}
+#define SIMPLE_STRINGIZE(x) #x
+SIMPLE_STRINGIZE(hello)
+{% endhighlight %}
+
+As would be expected, the above yields "hello". The following example, however,
+does not work as intended:
+
+{% highlight cpp %}
+#define BAD_STRINGIZE(x) #x
+#define FOO hello
+BAD_STRINGIZE(FOO)
+{% endhighlight %}
+
+It expands to "FOO".
+
+This is the correct implementation which works in all cases:
+
+{% highlight cpp %}
+#define GOOD_STRINGIZE(x) ACTUAL_STRINGIZE(x)
+#define ACTUAL_STRINGIZE(x) #x
+#define FOO hello
+GOOD_STRINGIZE(FOO)
+{% endhighlight %}
+
+This correctly expands to "hello".
+
+`GOOD_STRINGIZE` expands the macro, while `ACTUAL_STRINGIZE` performs the
+stringization. As mentioned, this same concept applies to the token-pasting
+operator as well.
+
+## C/C++ Differences
+
+For the most part, the C and C++ preprocessors are meant to work the same way.
+While this isn't the case for every version of the two languages (the
+preprocessor in general has evolved over time, for example with the inclusion of
+variadic macros), there are equivalences between specific versions, i.e. C++03
+matches C90 and C++11 lines up with C99.
+
+Predefined macros are slightly different between C and C++. The complete list of
+non-optional predefined macros can be seen on the relevant cppreference.com
+pages for the [C
+preprocessor](https://en.cppreference.com/w/c/preprocessor/replace) and the [C++
+preprocessor](https://en.cppreference.com/w/cpp/preprocessor/replace). The
+differences are as follows:
+
+Unique to C:
+* `__STD_C__`
+* `__STD_C_VERSION__`
+
+Unique to C++:
+* `__cplusplus`
+* `__STDCPP_DEFAULT_NEW_ALIGNMENT`
+
+Additional macros are defined by the different compilers, but that's beyond the
+scope of this articles. Check [this
+article](https://blog.kowalczyk.info/article/j/guide-to-predefined-macros-in-c-compilers-gcc-clang-msvc-etc..html)
+by Krzysztof Kowalczyk for platform-specific macros defined by the different
+compilers if you're interested. Commonly predefined GCC macros can also be found
+in the [GNU
+documentation](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html).
+
+This all being said, C++20 will introduce some bigger changes to the C++
+preprocessor. Modules are introducing two new preprocessor directives, `import`
+and `export`, which are set to revamp how C++ projects organize code, making the
+`#include` directive obsolete. It will also introduce the `<source_location>`
+header, which will modernize the `__FILE__` and `__LINE__` macros used for
+debugging and tracing.
 
 ## Running the Preprocessor Manually
 
-Can be done with either:
+Running the preprocessor by itself is fairly straightforward. With GCC it can be
+done with the following command, which stops compilation after the preprocessor
+phase:
 
 `gcc -E <input> -o <output>`
 
-or
+Alternatively, you can run the preprocessor tool (CPP) directly:
 
 `cpp <input> -o <output>`
 
-Input code:
-{% highlight cpp %}
-#include <stdio.h>
+The resulting output file will be free of all "preprocessing tokens", such as
+preprocessor directives and macros. All macros will have been expanded and all
+`#include` directives will be substituted with the appropriate file. Comments
+will also have been removed. Additional lines are added by the preprocessor
+which specify included files and line numbers, along with some other diagnostic
+information.
 
-#define CUSTOM_MACRO_VAL 7
-
-int main()
-{
-    printf("value = %g\n", CUSTOM_MACRO_VAL);  // comment!
-    return 0;
-}
-{% endhighlight %}
-
-Output code (snippet):
-{% highlight cpp %}
-int main()
-{
-    printf("value = %g\n", 7);
-    return 0;
-}
-{% endhighlight %}
-
-Removed preprocessor directives and comments, replaced macro with correct value.
-
-Lots of other stuff included in the output file like all included file names,
-source code from included files, diagnostic info, etc. But some of this output
-can be culled and it can be useful regardless, especially since file names and
-line numbers are included by default.
+Because all necessary files will be included, this file will likely be quite
+lengthy, with easily over 10,000 lines of code even for a simple C++ file making
+use of the Standard Library. Thankfully, searching for the name of the original
+source file along with the relevant line number makes finding expanded macros
+quite easy.
 
 ## Conclusion
 
 ## References
-* [GCC documentation](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros)
-* [cppreference page](https://en.cppreference.com/w/cpp/preprocessor/replace)
+* [GCC preprocessor documentation](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros)
+* [cppreference.com: Preprocessor replacing text macros](https://en.cppreference.com/w/cpp/preprocessor/replace)
+* [C99 N1256 Draft](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+* [C++11 N3337 Draft](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 * [Jonathan Boccara: 3 Types of Macros That Improve C++ Code](https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/)
 * [Eli Bendersky: Parsing C++ in Python with Clang](https://eli.thegreenplace.net/2011/07/03/parsing-c-in-python-with-clang)
+* [Krzysztof Kowalczyk: Guide to predefined macros in C++ compilers (gcc, clang, msvc etc.)](https://blog.kowalczyk.info/article/j/guide-to-predefined-macros-in-c-compilers-gcc-clang-msvc-etc..html)
