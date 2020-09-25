@@ -5,24 +5,26 @@ description: "How and Why They Work"
 tags: [cpp, compilers]
 ---
 
-While quite a divisive topic in C++, macros are still widely used in legacy code
-and for niche cases in modern code. As such, understanding them is still
-necessary in C++.
+While quite a divisive topic in the C++ community, macros are widely used in
+legacy code and for niche cases in modern code. As such, understanding them is
+crucial to understanding C++ as a whole.
 
 This article will cover how macros work and the basics of using them in your
-code. How macros have evolved with C++ will also be discussed. I've also
-included a short nugget at the end detailing how to use the preprocessor
-directly to see the output of macro replacements yourself, a topic rarely
-discussed.
+code. How macros have evolved with C++ will also be discussed. Towards the end
+of the article I've also detailed how to use the preprocessor directly to see
+the output of macro replacements, a topic rarely discussed.
 
-I won't be talking about some of the finer details of macros or when you
+I won't be talking too much about the finer details of macros or when you
 should/shouldn't use them. If you'd like to see some common C++ use cases,
 Jonathan Boccara gives great examples in his article [*3 Types of Macros That
 Improve C++
 Code*](https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/).
+The GCC preprocessor documentation also includes a section on [macro
+pitfalls](https://gcc.gnu.org/onlinedocs/cpp/Macro-Pitfalls.html#Macro-Pitfalls).
 
-In general, most of the examples I present in this article are not considered
-the best applications of macros. That being said,
+In general, most of the examples I present here are not considered the best
+applications of macros. That being said, they help illustrate many aspects of
+macros in straightforward ways.
 
 ## What are Macros?
 
@@ -30,10 +32,10 @@ A macro is an identifier that represents some expression. The expression,
 sometimes called a "replacement list", can be any snippet of code.
 
 All instances of a macro are replaced (expanded) by the preprocessor early in
-the compilation process (specifically during [phase
-4](https://en.cppreference.com/w/cpp/language/translation_phases) in both C and
-C++). The `#define` preprocessor directive is used to create macros. The basic
-syntax is:
+the compilation process. This occurs specifically during [phase
+4](https://en.cppreference.com/w/cpp/language/translation_phases) of compilation
+in both C and C++. The `#define` preprocessor directive is used to create
+macros. The basic syntax is:
 
 `#define my_macro replacement list`
 
@@ -50,7 +52,7 @@ Note that when the macro is expanded, the replacement list will all be put on
 one line.
 
 In addition to being *defined*, macros can be *undefined*. This is the only way
-to apply to scope to macros.
+to apply scope to macros.
 
 {% highlight cpp %}
 std::string x;
@@ -76,30 +78,61 @@ and third instances.
 The replacement list doesn't even have to be valid code, technically. Macros are
 expanded during preprocessing, before the compiler sees the code. Therefore, if
 a macro with an invalid definition isn't actually used after being defined, the
-compiler would never see the invalid definition. The definitions of all expanded
-macros, on the other hand, will be seen by the compiler.
+compiler would never see the invalid definition. The definitions of all
+*expanded* macros, on the other hand, will be seen by the compiler and therefore
+must result in valid code.
 
-## C/C++ Compilation Process
+## Phases of Translation
 
 As it turns out, the "C preprocessor" is a separate tool which, just like a
 linker, is called automatically by the compiler during the compilation process.
-It is also compatible with multiple languages in the C family: namely C, C++,
+It is also compatible with other languages in the C family, namely C++,
 Objective-C, and Fortran.
 
-GCC's preprocessor is called "CPP" (confusingly enough) and is packaged as a
+GCC's preprocessor is called "CPP" (C Preprocessor) and is packaged as a
 separate binary. You can run this tool manually to see the effects of
 preprocessing firsthand if you like, which I discuss
 [below](#running-the-preprocessor-manually).
 
-Tokens vs. preprocessing tokens
+Without getting too far into the weeds, "compilation" as defined by the C/C++
+standards includes multiple steps called *translation phases*. The most relevant
+steps for this discussion of macros are when tokenization, preprocessing, and compilation all take place.
 
-Stage 4 of the compilation process
+* Tokenization (of preprocessing tokens): step 3
+* Preprocessing: step 4
+* Compilation: step 7 (steps 7/8 in C++)
 
-Link to [cppreference here](https://en.cppreference.com/w/c/language/translation_phases)
+Tokenization technically occurs twice, once in step 3 and again in step 7 right
+before compilation. More discussion about this
+[below](#tokens-and-preprocessor-tokens).
+
+The most important takeaway here is that initial tokenization occurs *before*
+preprocessing, which occurs *before* compilation. Therefore, extraneous
+whitespace and comments are all removed before the preprocessor ever sees the
+code, and preprocessing occurs before the compiler ever sees the code. This is
+important context which helps put preprocessing in perspective.
+
+One last note, the specifications for C/C++ don't prescribe the implementation
+of these translation phases, since that's not the goal of the specification
+period. Therefore, there's no one way to apply these translation phases. One
+tool could implement one phase each, one tool could implement all of the phases,
+or anything in between. As long as the behavior mimics these phases, that's all
+that matters. In GCC's case, the preprocessor we've been discussing (CPP), can
+perform at least the first four phases, while GCC from a user's perspective
+performs all of them (by calling the preprocessor, linker, and other
+tools).
+
+For more information about the translation phases, I would recommend looking
+either at cppreference.com or directly at the drafts for the C/C++ standards:
+
+* [cppreference.com for C](https://en.cppreference.com/w/c/language/translation_phases)
+* [cppreference.com for C++](https://en.cppreference.com/w/cpp/language/translation_phases)
+* [C99 Standard Draft N1256 (section 5.1.1.2)](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+* [C++11 Standard Draft N3337 (section 2.2)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 
 ## Two Types of Macros: Object- and Function-like
 
-There are two overarching types of macro: object-like and function-like.
+There are two overarching types of macros: object-like and function-like.
 
 #### Object-like macros
 
@@ -113,7 +146,7 @@ store constants, as below:
 #### Function-like macros
 
 Conversely, macros which do accept arguments are called "function-like". They
-work similarly to regular functions, as below.
+work similarly to regular functions.
 
 {% highlight cpp %}
 #define ADD(x, y) x + y
@@ -131,21 +164,21 @@ included in the call to the macro.
 
 *Variadic macros* are function-like macros which accept a variable number of
 arguments. Here's the example used by the [GNU CPP
-page](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros):
+docs](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros):
 
 {% highlight cpp %}
 #define eprintf(...) fprintf(stderr, __VA_ARGS__)
 {% endhighlight %}
 
 The `__VA_ARGS__` identifier represents all of the arguments passed into the
-macro.
+macro, separated by commas.
 
 Named arguments can be included in variadic macros. A custom variadic identifier
-can be specified in place of `__VA_ARGS__` as well. Here's an updated example of
+can also be specified in place of `__VA_ARGS__`. Here's an updated example of
 `eprintf`:
 
 {% highlight cpp %}
-#define eprintf(format, args...) printf(stderr, format, args)
+#define eprintf(str, args...) printf(stderr, str, args)
 {% endhighlight %}
 
 As in the examples shown, variadic macros are often used to extend `printf`.
@@ -159,7 +192,8 @@ Before discussing the # and ## operators in the next section, it's useful to
 first explain the concepts of tokens and preprocessor tokens.
 
 In computer science, a "token" is the smallest piece of a program which is
-meaningful to a given language's compiler. Take the following line of C++ code:
+meaningful to a given language's compiler/interpreter. Take the following line
+of C++ code:
 
 {% highlight cpp %}
 int foo = (5 + 8) * 3;  // foo is an original name
@@ -180,11 +214,13 @@ Now, while each language has its own set of tokens, C and C++ also have sets of
 *preprocessor tokens*. This means that the preprocessor interprets source code
 differently than the actual compiler.
 
-So here's what happens. When your C/C++ code is compiled, it is first parsed by
-the preprocessor. The preprocessor converts all of the code into preprocessor
-tokens. It then applies some changes ("transformations") to the source code
-based on these preprocessor tokens. After these transformations are applied, the
-resulting source code is converted into tokens for further processing.
+So here's what happens. Recall the [above discussion](#phases-of-translation)
+about translation phases. When your C/C++ code is compiled, it is first parsed
+by the preprocessor. The preprocessor converts all of the code into
+*preprocessor tokens*. It then applies some changes ("transformations") to the
+source code based on these preprocessor tokens. After these transformations are
+applied, the resulting source code is converted into *tokens* (**not**
+preprocessor tokens) for actual compilation.
 
 To make this crystal clear, let's run through an example.
 
@@ -201,7 +237,7 @@ The preprocessor would parse this code into the following preprocessor tokens:
 
 Now that the preprocessor has generated preprocessing tokens, it must transform
 the code based on the preprocessor directives. The #define directives indicate
-that macro substitution should occur, so that transformation is applied.
+that a macro substitution should occur, so that transformation is applied.
 Afterwards, the preprocessor directives are removed from the code. That leaves
 us with the following preprocessed code:
 
@@ -215,30 +251,30 @@ As you can probably guess, the tokens resulting from this code are:
 [int, x, =, 10, -, 6, ;]
 {% endhighlight %}
 
-Again, these are regular tokens ("tokens"), *not* preprocessing tokens.
+Again, these are regular tokens, *not* preprocessing tokens.
 
 As we can see, only the preprocessor is used to interact with preprocessor
-directives, so the code for processing tokens does not need to recognize
-preprocessor directives at all.
+directives, so the compiler does not need to recognize preprocessor directives
+at all.
 
-With these definitions in mind, let's now talk about the preprocessor operators
-\# and \#\#.
+With these definitions in mind, let's now talk about the stringizing (#) and
+token concatenation (\##) preprocessor operators.
 
 ## Preprocessor Operators: # and \##
 
 In the examples we've seen above, macro substitution causes the compiler to
-recognize the replaced text as a set of tokens, without any extra complexity.
-This is great for many applications, but sometimes we may want a bit more
-control over this process. The single hash (#) and double hash (##) operators
-allow us to manipulate how the preprocessor turns the replacement text into
-tokens.
+recognize the replaced text as a simple set of tokens. This is great for many
+applications, but sometimes we may want a bit more control over this process.
+The stringizing (#) and token concatenation (##) operators allow us to
+manipulate how the preprocessor expands macros.
 
-#### Single hash operator #: Stringizing
+#### Stringizing Operator (#)
 
-The single hash operator allows us to *stringize* the argument. Essentially this
-just converts the argument into a string constant. Instead of interpreting the
-argument as a normal set of tokens, the entire argument is converted into one
-string literal token. A simple example can be shown with another print macro:
+The # (single hash) operator allows us to *stringize* an argument in a
+function-like macro. This converts the argument into a string constant. Instead
+of interpreting the argument as a normal set of tokens, the entire argument is
+converted into one string literal token. A simple example can be shown with
+another `printf` macro:
 
 {% highlight cpp%}
 #define PRINT_RESULT(exp) printf(#exp " = ", exp)
@@ -254,9 +290,9 @@ printf("2 + 3" " = ", 2 + 3);
 Notice that the stringized argument ends up adjacent to the string literal that
 was already present in the macro definition. This is the correct way of using
 stringized arguments since adjacent string literal tokens are concatenated
-during compilation (in compilation step 6, specifically).
+before actual compilation (in translation phase 6).
 
-#### Double hash operator \##: Token concatenating/pasting
+#### Token Concatenation/Pasting Operator (\##)
 
 While the single hash operator allows us to convert a token into a string
 literal token, the double hash operator allows us to combine tokens. This is
@@ -276,7 +312,7 @@ This generates the following code:
 int foo1, foo2, foo3;
 {% endhighlight %}
 
-Due to token pasting, `foo1`, `foo2`, and `foo3` are valid tokens.
+Due to token pasting, `foo1`, `foo2`, and `foo3` are complete, valid tokens.
 
 Token concatenation can also be used for more complicated tasks. One prime
 example is creating [*X macros*](https://en.wikipedia.org/wiki/X_Macro), which
@@ -292,14 +328,14 @@ options out to the user.
     X(blue), \
     X(green)
 
-// First we create the enum.
+// Define the enum.
 enum class colors {
 #define X(name) COLOR_##name
 COLOR_LIST
 #undef X
 };
 
-// Next, we define the list of strings.
+// Define the list of strings.
 std::vector<std::string> color_names = {
 #define X(name) #name
 COLOR_LIST
@@ -323,7 +359,7 @@ X(red), X(blue), X(green)
 };
 {% endhighlight %}
 
-And then expanding the `X` macros would result in the final code:
+Expanding the `X` macros would result in the final code:
 
 {% highlight cpp %}
 enum class colors {
@@ -335,12 +371,12 @@ std::vector<std::string> color_names = {
 };
 {% endhighlight %}
 
-The stringization and pasting operators can be used for many applications of
-this concept.
+The stringization and token pasting operators can be used for many applications
+of this concept.
 
 #### Two Layers of Indirection
 
-One important aspect of the stringization and token-pasting operators is that
+One important aspect of the stringization and token pasting operators is that
 they don't expand macros themselves. As a result, an additional layer of
 indirection must be used to handle all cases correctly. Let's see some examples.
 
@@ -372,7 +408,7 @@ GOOD_STRINGIZE(FOO)
 This correctly expands to "hello".
 
 `GOOD_STRINGIZE` expands the macro, while `ACTUAL_STRINGIZE` performs the
-stringization. As mentioned, this same concept applies to the token-pasting
+stringization. As mentioned, this same concept applies to the token pasting
 operator as well.
 
 ## C/C++ Differences
@@ -383,35 +419,23 @@ preprocessor in general has evolved over time, for example with the inclusion of
 variadic macros), there are equivalences between specific versions, i.e. C++03
 matches C90 and C++11 lines up with C99.
 
-Predefined macros are slightly different between C and C++. The complete list of
-non-optional predefined macros can be seen on the relevant cppreference.com
-pages for the [C
+Predefined macros, however, are slightly different between C and C++. The
+complete list of non-optional predefined macros can be seen on the relevant
+cppreference.com pages for the [C
 preprocessor](https://en.cppreference.com/w/c/preprocessor/replace) and the [C++
-preprocessor](https://en.cppreference.com/w/cpp/preprocessor/replace). The
-differences are as follows:
-
-Unique to C:
-* `__STD_C__`
-* `__STD_C_VERSION__`
-
-Unique to C++:
-* `__cplusplus`
-* `__STDCPP_DEFAULT_NEW_ALIGNMENT`
+preprocessor](https://en.cppreference.com/w/cpp/preprocessor/replace).
 
 Additional macros are defined by the different compilers, but that's beyond the
-scope of this articles. Check [this
-article](https://blog.kowalczyk.info/article/j/guide-to-predefined-macros-in-c-compilers-gcc-clang-msvc-etc..html)
-by Krzysztof Kowalczyk for platform-specific macros defined by the different
-compilers if you're interested. Commonly predefined GCC macros can also be found
-in the [GNU
-documentation](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html).
+scope of this articles. As one example, commonly predefined GCC macros can also
+be found in the [GNU CPP
+docs](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html).
 
-This all being said, C++20 will introduce some bigger changes to the C++
-preprocessor. Modules are introducing two new preprocessor directives, `import`
-and `export`, which are set to revamp how C++ projects organize code, making the
-`#include` directive obsolete. It will also introduce the `<source_location>`
-header, which will modernize the `__FILE__` and `__LINE__` macros used for
-debugging and tracing.
+This all being said, the preprocessor is changing more alongside C++20. Modules
+are introducing two new preprocessor directives, `import` and `export`, which
+are set to revamp how C++ projects organize code, making the `#include`
+directive obsolete. Other language features are being shifted away from the
+preprocessor as well, as the `<source_location>` header will provide
+alternatives to the `__FILE__` and `__LINE__` macros for debugging and tracing.
 
 ## Running the Preprocessor Manually
 
@@ -421,16 +445,16 @@ phase:
 
 `gcc -E <input> -o <output>`
 
-Alternatively, you can run the preprocessor tool (CPP) directly:
+Alternatively, you can run the preprocessor (CPP) directly:
 
 `cpp <input> -o <output>`
 
-The resulting output file will be free of all "preprocessing tokens", such as
+The resulting output file will be free of all preprocessing tokens, such as
 preprocessor directives and macros. All macros will have been expanded and all
-`#include` directives will be substituted with the appropriate file. Comments
-will also have been removed. Additional lines are added by the preprocessor
-which specify included files and line numbers, along with some other diagnostic
-information.
+`#include` directives will have been substituted with the appropriate file.
+Comments will also have been removed. Additional lines are added by the
+preprocessor which specify included files and line numbers, along with some
+other diagnostic information.
 
 Because all necessary files will be included, this file will likely be quite
 lengthy, with easily over 10,000 lines of code even for a simple C++ file making
@@ -440,11 +464,15 @@ quite easy.
 
 ## Conclusion
 
+I'm hoping this article gives a good overview of not just *how* macros work, but
+*why* they work and how they fit into the greater C/C++ compilation model. While
+there are certainly myriad ways to misuse macros, they can still be used for
+very concise and efficient solutions.
+
 ## References
 * [GCC preprocessor documentation](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros)
 * [cppreference.com: Preprocessor replacing text macros](https://en.cppreference.com/w/cpp/preprocessor/replace)
-* [C99 N1256 Draft](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
-* [C++11 N3337 Draft](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
+* [C99 Standard Draft N1256](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+* [C++11 Standard Draft N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 * [Jonathan Boccara: 3 Types of Macros That Improve C++ Code](https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/)
 * [Eli Bendersky: Parsing C++ in Python with Clang](https://eli.thegreenplace.net/2011/07/03/parsing-c-in-python-with-clang)
-* [Krzysztof Kowalczyk: Guide to predefined macros in C++ compilers (gcc, clang, msvc etc.)](https://blog.kowalczyk.info/article/j/guide-to-predefined-macros-in-c-compilers-gcc-clang-msvc-etc..html)
