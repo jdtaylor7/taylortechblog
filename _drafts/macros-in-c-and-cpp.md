@@ -6,18 +6,17 @@ tags: [cpp, compilers]
 ---
 
 While quite a divisive topic in the C++ community, macros are widely used in
-legacy code and for niche cases in modern code. As such, understanding them is
-crucial to understanding C++ as a whole.
+legacy code and for niche cases in more modern code. As such, understanding them
+is crucial to understanding both the preprocessor and C++ as a whole.
 
 This article will cover how macros work and the basics of using them in your
-code. How macros have evolved with C++ will also be discussed. Towards the end
-of the article I've also detailed how to use the preprocessor directly to see
-the output of macro replacements, a topic rarely discussed.
+code. Towards the end of the article I've also detailed how to use the
+preprocessor directly to see the output of macro replacements, a topic rarely
+discussed.
 
-I won't be talking too much about the finer details of macros or when you
-should/shouldn't use them. If you'd like to see some common C++ use cases,
-Jonathan Boccara gives great examples in his article [*3 Types of Macros That
-Improve C++
+I won't be covering every tiny detail about macros or when you should/shouldn't
+use them in C++. If you'd like to see some common C++ use cases, Jonathan
+Boccara gives great examples in his article [*3 Types of Macros That Improve C++
 Code*](https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/).
 The GCC preprocessor documentation also includes a section on [macro
 pitfalls](https://gcc.gnu.org/onlinedocs/cpp/Macro-Pitfalls.html#Macro-Pitfalls).
@@ -31,8 +30,8 @@ macros in straightforward ways.
 A macro is an identifier that represents some expression. The expression,
 sometimes called a "replacement list", can be any snippet of code.
 
-All instances of a macro are replaced (expanded) by the preprocessor early in
-the compilation process. This occurs specifically during [phase
+All instances of a macro are replaced (or *expanded*) by the preprocessor early
+in the compilation process. This occurs specifically during [phase
 4](https://en.cppreference.com/w/cpp/language/translation_phases) of compilation
 in both C and C++. The `#define` preprocessor directive is used to create
 macros. The basic syntax is:
