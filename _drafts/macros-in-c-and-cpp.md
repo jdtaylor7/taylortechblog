@@ -75,54 +75,73 @@ This wouldn't compile since `FANCY_MACRO` is an undefined symbol in the first
 and third instances.
 
 The replacement list doesn't even have to be valid code, technically. Macros are
-expanded during preprocessing, before the compiler sees the code. Therefore, if
-a macro with an invalid definition isn't actually used after being defined, the
-compiler would never see the invalid definition. The definitions of all
-*expanded* macros, on the other hand, will be seen by the compiler and therefore
-must result in valid code.
+expanded during preprocessing, before the actual compiler sees the code.
+Therefore, if a macro replacement that would result in invalid code isn't
+actually *used* after being defined, the compiler would never see the invalid
+definition. The definitions of *all expanded macros*, on the other hand, will be
+seen by the compiler and therefore must result in valid code.
 
 ## Phases of Translation
 
-As it turns out, the "C preprocessor" is a separate tool which, just like a
-linker, is called automatically by the compiler during the compilation process.
-It is also compatible with other languages in the C family, namely C++,
-Objective-C, and Fortran.
+Before discussing macros in more depth, I want to discuss the C/C++ language
+models as a whole. This should provide more context and intuition about how and
+why macros work.
 
-GCC's preprocessor is called "CPP" (C Preprocessor) and is packaged as a
-separate binary. You can run this tool manually to see the effects of
-preprocessing firsthand if you like, which I discuss
-[below](#running-the-preprocessor-manually).
+First off, C and C++ are called "compiled" languages. This is because source
+code must be transformed into executable code before it can be run directly on a
+machine. This process of transforming source code is commonly called
+"compilation" in practice, but that isn't quite right. The overall process is
+formally called *translation*, which includes preprocessing, compilation, and
+linking (along with some smaller steps in between).
 
-Without getting too far into the weeds, "compilation" as defined by the C/C++
-standards includes multiple steps called *translation phases*. The most relevant
-steps for this discussion of macros are when tokenization, preprocessing, and compilation all take place.
+The full translation process is a series of 8-9 *phases* (depending on the
+language and version) which are defined in the C/C++ ISO standards documents.
+While these documents specify in general terms what should be done in each
+phase, it intentionally does not dictate how these steps should be implemented.
+Therefore, different compiler toolchains (GCC, Clang, etc.) may work
+differently.
+
+In this article, we'll be discussing GCC's implementation.
+
+In GCC, the work of the translation process is actually divided up into separate
+discrete tools, each with their own binary. There is a preprocessor (*cpp*), a
+compiler (*GCC*), and a linker (*ld*). GCC, the compiler, is actually capable of
+running the other tools under the hood when you use it on the command line.
+Because of this, when a C/C++ programmer "compiles" their code, they generally
+just make a series of calls to GCC, rarely touching the other tools manually.
+
+Okay, how does all of this relate to macros?
+
+First, it suggests that we may be able to observe the effects of macro
+replacement directly. Second, it provides intuition for some details about
+exactly how macros work.
+
+Because GCC separates its tools, it's possible to run the preprocessor on the
+command line by itself. Since the preprocessor controls macro replacement, this
+allows users to see the result of macro replacement firsthand. I cover this
+[later in the article](#running-the-preprocessor-manually).
+
+As far as intuition building is concerned, let's see the order of the
+*tokenization*, preprocessing, and compilation translation phases:
 
 * Tokenization (of preprocessing tokens): step 3
 * Preprocessing: step 4
 * Compilation: step 7 (steps 7/8 in C++)
 
-Tokenization technically occurs twice, once in step 3 and again in step 7 right
-before compilation. More discussion about this
-[below](#tokens-and-preprocessor-tokens).
+*Tokenization technically occurs twice, once in step 3 and again in step 7 right
+before compilation. More [below](#tokens-and-preprocessor-tokens).*
 
 The most important takeaway here is that initial tokenization occurs *before*
 preprocessing, which occurs *before* compilation. Therefore, extraneous
 whitespace and comments are all removed before the preprocessor ever sees the
-code, and preprocessing occurs before the compiler ever sees the code. This is
-important context which helps put preprocessing in perspective.
+code, and preprocessing occurs before the compiler ever sees the code.
 
-One last note, the specifications for C/C++ don't prescribe the implementation
-of these translation phases, since that's not the goal of the specification
-period. Therefore, there's no one way to apply these translation phases. One
-tool could implement one phase each, one tool could implement all of the phases,
-or anything in between. As long as the behavior mimics these phases, that's all
-that matters. In GCC's case, the preprocessor we've been discussing (CPP), can
-perform at least the first four phases, while GCC from a user's perspective
-performs all of them (by calling the preprocessor, linker, and other
-tools).
+From this information we can intuit various details about macro replacement:
+multi-line replacement lists will occupy only one line once replaced, macro
+definitions are only seen by the compiler if the macro is used, the compiler
+never actually sees preprocessor directives, etc.
 
-For more information about the translation phases, I would recommend looking
-either at cppreference.com or directly at the drafts for the C/C++ standards:
+For more information about the translation phases, I would recommend reading either cppreference.com or the drafts for the C/C++ standards directly:
 
 * [cppreference.com for C](https://en.cppreference.com/w/c/language/translation_phases)
 * [cppreference.com for C++](https://en.cppreference.com/w/cpp/language/translation_phases)
@@ -130,6 +149,8 @@ either at cppreference.com or directly at the drafts for the C/C++ standards:
 * [C++11 Standard Draft N3337 (section 2.2)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 
 ## Two Types of Macros: Object- and Function-like
+
+Now, let's see how some basic macros work.
 
 There are two overarching types of macros: object-like and function-like.
 
@@ -152,7 +173,7 @@ work similarly to regular functions.
 int z = ADD(2, 3);
 {% endhighlight %}
 
-The above code snippet would be converted into:
+The above code snippet would be expanded to:
 
 {% highlight cpp %}
 int z = 2 + 3;
@@ -162,7 +183,7 @@ Note that the semicolon is excluded in the macro definition and thus must be
 included in the call to the macro.
 
 *Variadic macros* are function-like macros which accept a variable number of
-arguments. Here's the example used by the [GNU CPP
+arguments. Here's the example used by the [GNU cpp
 docs](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros):
 
 {% highlight cpp %}
@@ -198,8 +219,7 @@ of C++ code:
 int foo = (5 + 8) * 3;  // foo is an original name
 {% endhighlight %}
 
-After this line is converted into tokens (tokenized), the resulting array of
-tokens would look as follows:
+After this line is tokenized, the resulting array of tokens would be:
 
 {% highlight plaintext %}
 [int, foo, =, (, 5, +, *, ), *, 3, ;]
@@ -228,7 +248,8 @@ To make this crystal clear, let's run through an example.
 int x = 10 - MY_NUM;
 {% endhighlight %}
 
-The preprocessor would parse this code into the following preprocessor tokens:
+The preprocessor would parse this code into the following **preprocessor
+tokens**:
 
 {% highlight plaintext %}
 [#define, MY_NUM, 6, int, x, =, 10, -, MY_NUM, ;]
@@ -244,7 +265,7 @@ us with the following preprocessed code:
 int x = 10 - 6;
 {% endhighlight %}
 
-As you can probably guess, the tokens resulting from this code are:
+As you can probably guess, the **tokens** resulting from this code are:
 
 {% highlight plaintext %}
 [int, x, =, 10, -, 6, ;]
@@ -261,11 +282,11 @@ token concatenation (\##) preprocessor operators.
 
 ## Preprocessor Operators: # and \##
 
-In the examples we've seen above, macro substitution causes the compiler to
-recognize the replaced text as a simple set of tokens. This is great for many
+In the examples above, macro substitution simply causes the compiler to
+recognize the replaced text as a set of tokens. This is great for many
 applications, but sometimes we may want a bit more control over this process.
 The stringizing (#) and token concatenation (##) operators allow us to
-manipulate how the preprocessor expands macros.
+manipulate how the preprocessor converts macros into tokens.
 
 #### Stringizing Operator (#)
 
@@ -384,8 +405,8 @@ indirection must be used to handle all cases correctly. Let's see some examples.
 SIMPLE_STRINGIZE(hello)
 {% endhighlight %}
 
-As would be expected, the above yields "hello". The following example, however,
-does not work as intended:
+As would be expected, the above yields "hello". The following, however, does
+not:
 
 {% highlight cpp %}
 #define BAD_STRINGIZE(x) #x
@@ -406,17 +427,16 @@ GOOD_STRINGIZE(FOO)
 
 This correctly expands to "hello".
 
-`GOOD_STRINGIZE` expands the macro, while `ACTUAL_STRINGIZE` performs the
-stringization. As mentioned, this same concept applies to the token pasting
-operator as well.
+`GOOD_STRINGIZE` expands the macro (converts `FOO` to `hello`), while
+`ACTUAL_STRINGIZE` performs the stringization (converts `hello` to `"hello"`).
+As mentioned, this concept applies to the token pasting operator as well,
 
 ## C/C++ Differences
 
 For the most part, the C and C++ preprocessors are meant to work the same way.
 While this isn't the case for every version of the two languages (the
 preprocessor in general has evolved over time, for example with the inclusion of
-variadic macros), there are equivalences between specific versions, i.e. C++03
-matches C90 and C++11 lines up with C99.
+variadic macros), the differences are generally few and far between.
 
 Predefined macros, however, are slightly different between C and C++. The
 complete list of non-optional predefined macros can be seen on the relevant
@@ -424,14 +444,12 @@ cppreference.com pages for the [C
 preprocessor](https://en.cppreference.com/w/c/preprocessor/replace) and the [C++
 preprocessor](https://en.cppreference.com/w/cpp/preprocessor/replace).
 
-Additional macros are defined by the different compilers, but that's beyond the
-scope of this articles. As one example, commonly predefined GCC macros can also
-be found in the [GNU CPP
-docs](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html).
+Additional macros are defined by different compilers and environments, but
+that's beyond the scope of this article.
 
-This all being said, the preprocessor is changing more alongside C++20. Modules
-are introducing two new preprocessor directives, `import` and `export`, which
-are set to revamp how C++ projects organize code, making the `#include`
+This all being said, the role of the preprocessor is changing a bit in C++20.
+Modules are introducing two new preprocessor directives, `import` and `export`,
+which are set to revamp how C++ projects organize code, making the `#include`
 directive obsolete. Other language features are being shifted away from the
 preprocessor as well, as the `<source_location>` header will provide
 alternatives to the `__FILE__` and `__LINE__` macros for debugging and tracing.
@@ -444,16 +462,16 @@ phase:
 
 `gcc -E <input> -o <output>`
 
-Alternatively, you can run the preprocessor (CPP) directly:
+Alternatively, you can run the preprocessor (cpp) directly:
 
 `cpp <input> -o <output>`
 
 The resulting output file will be free of all preprocessing tokens, such as
 preprocessor directives and macros. All macros will have been expanded and all
 `#include` directives will have been substituted with the appropriate file.
-Comments will also have been removed. Additional lines are added by the
-preprocessor which specify included files and line numbers, along with some
-other diagnostic information.
+Comments and extraneous whitespace will also have been removed. Additional lines
+are added by the preprocessor which specify included files and line numbers,
+along with some other diagnostic information.
 
 Because all necessary files will be included, this file will likely be quite
 lengthy, with easily over 10,000 lines of code even for a simple C++ file making
@@ -463,9 +481,9 @@ quite easy.
 
 ## Conclusion
 
-I'm hoping this article gives a good overview of not just *how* macros work, but
-*why* they work and how they fit into the greater C/C++ compilation model. While
-there are certainly myriad ways to misuse macros, they can still be used for
+I'm hoping this article provides a good overview of not just *how* macros work,
+but *why* they work and how they fit into the greater C/C++ compilation model.
+While macros are finding less use as C++ evolves, they can still be used for
 very concise and efficient solutions.
 
 ## References
