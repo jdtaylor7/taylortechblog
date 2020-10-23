@@ -433,6 +433,9 @@ As mentioned, this concept applies to the token pasting operator as well,
 
 ## C/C++ Differences
 
+As we start wrapping up this article, I want to touch on how the preprocessor
+differs between C and C++ and where the preprocessor is headed in the future.
+
 For the most part, the C and C++ preprocessors are meant to work the same way.
 While this isn't the case for every version of the two languages (the
 preprocessor in general has evolved over time, for example with the inclusion of
@@ -456,7 +459,10 @@ alternatives to the `__FILE__` and `__LINE__` macros for debugging and tracing.
 
 ## Running the Preprocessor Manually
 
-Running the preprocessor by itself is fairly straightforward. With GCC it can be
+Finally, let's discuss how to run the preprocessor manually as we hinted to
+earlier.
+
+Running the preprocessor by itself is quite straightforward. With GCC it can be
 done with the following command, which stops compilation after the preprocessor
 phase:
 
