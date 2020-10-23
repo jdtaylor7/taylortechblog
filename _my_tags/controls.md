@@ -1,4 +1,0 @@
----
-slug: controls
-name: Controls
----

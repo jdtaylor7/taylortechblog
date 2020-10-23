@@ -1,20 +1,58 @@
----
----
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="https://www.w3.org/2005/Atom" xmlns:dc="https://purl.org/dc/elements/1.1/">
   <channel>
-    <title>{{ site.name | xml_escape }}</title>
-    <description>{% if site.description %}{{ site.description | xml_escape }}{% endif %}</description>
-    <link>{{ site.url }}</link>
-    <atom:link href="{{ page.path | absolute_url }}" rel="self" type="application/rss+xml" />
-    {% for post in site.posts limit:10 %}
+    <title>Taylor Tech Blog</title>
+    <description></description>
+    <link>https://taylortechblog.com</link>
+    <atom:link href="https://taylortechblog.com/feed.xml" rel="self" type="application/rss+xml" />
+    
       <item>
-        <title>{{ post.title | xml_escape }}</title>
-        <description>{{ post.description | xml_escape }}</description>
-        <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-        <link>{{ post.url | absolute_url }}</link>
-        <guid isPermaLink="true">{{ post.url | absolute_url }}</guid>
+        <title>Macros in C and C++</title>
+        <description>How and Why They Work</description>
+        <pubDate>Fri, 23 Oct 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/macros-in-c-and-cpp</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/macros-in-c-and-cpp</guid>
       </item>
-    {% endfor %}
+    
+      <item>
+        <title>Introducing Prometheus</title>
+        <description>Drone Simulation and Monitoring Application</description>
+        <pubDate>Tue, 01 Sep 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/prometheus-introduction</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/prometheus-introduction</guid>
+      </item>
+    
+      <item>
+        <title>Drone Project Introduction</title>
+        <description>Goals and Components of the Project</description>
+        <pubDate>Sat, 08 Aug 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/drone-project-intro</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/drone-project-intro</guid>
+      </item>
+    
+      <item>
+        <title>C++ Bounded Buffers, Part 2</title>
+        <description>Implementing a Thread-Safe Bounded Buffer in C++</description>
+        <pubDate>Thu, 16 Jul 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/cpp-bounded-buffer-2</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/cpp-bounded-buffer-2</guid>
+      </item>
+    
+      <item>
+        <title>C++ Bounded Buffers, Part 1</title>
+        <description>Introduction to Bounded Buffers</description>
+        <pubDate>Thu, 02 Jul 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/cpp-bounded-buffer-1</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/cpp-bounded-buffer-1</guid>
+      </item>
+    
+      <item>
+        <title>Configuring Manjaro with Ansible</title>
+        <description>Configuring Manjaro with Ansible</description>
+        <pubDate>Tue, 23 Jun 2020 00:00:00 -0700</pubDate>
+        <link>https://taylortechblog.com/posts/configuring-manjaro-with-ansible</link>
+        <guid isPermaLink="true">https://taylortechblog.com/posts/configuring-manjaro-with-ansible</guid>
+      </item>
+    
   </channel>
 </rss>
