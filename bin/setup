@@ -6,6 +6,7 @@
 set -e
 
 # Check Node version.
+echo -n "Node version: "
 node -v
 
 # Set up Ruby dependencies via Bundler.

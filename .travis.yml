@@ -3,6 +3,8 @@ sudo: false
 # version automatically picked up from .ruby-version
 language: ruby
 cache: bundler
+node_js:
+  - 14
 
 notifications:
     email: false

@@ -6,6 +6,7 @@
 set -e
 
 # Check Node version.
+echo -n "Node version: "
 node -v
 
 echo "Started deploying"
