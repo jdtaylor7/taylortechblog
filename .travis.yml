@@ -10,6 +10,7 @@ notifications:
     email: false
 
 before_install:
+  - node -v
   - gem update --system
   - gem install bundler jekyll
 
