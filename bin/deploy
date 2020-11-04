@@ -5,6 +5,9 @@
 # Exit if any subcommand fails.
 set -e
 
+# Check Node version.
+node -v
+
 echo "Started deploying"
 
 # Checkout gh-pages branch.

@@ -5,6 +5,9 @@
 # Exit if any subcommand fails
 set -e
 
+# Check Node version.
+node -v
+
 # Set up Ruby dependencies via Bundler.
 gem install bundler --conservative
 bundle check || bundle install
