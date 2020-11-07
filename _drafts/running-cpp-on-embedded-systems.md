@@ -2,20 +2,12 @@
 layout: post
 title: "Running C++ on Embedded Systems"
 description: "C++ in a Bare Bones Environment"
-tags: [cpp, embedded, hardware]
+tags: [cpp, compilers, embedded, hardware]
 ---
 
 Intro
 
 ## How C++ Binaries are Structured
-
-Executable (object) file formats:
-* [COFF](https://en.wikipedia.org/wiki/COFF)
-* [Mach-O](https://en.wikipedia.org/wiki/Mach-O) (macOS)
-* [PE](https://en.wikipedia.org/wiki/Portable_Executable) (Windows)
-* [ELF](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format) (Linux, many other systems)
-
-## ELF Format File Layout
 
 ## Hosted and Freestanding Execution Environments
 
