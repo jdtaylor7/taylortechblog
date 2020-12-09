@@ -71,7 +71,8 @@ Haven't looked into these for embedded yet
 ## Useful Compiler Flags
 
 [C++ On Embedded Systems](https://bitbashing.io/embedded-cpp.html)
-
+[The Best and Worst GCC Compiler Flags for Embedded](https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags)
+[Makefile for embedded projects](http://tty.uchuujin.de/2016/02/stm32-from-scratch-makefile/)
 
 ## References
 * [Main function - cppreference](https://en.cppreference.com/w/cpp/language/main_function)
