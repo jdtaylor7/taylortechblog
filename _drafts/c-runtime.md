@@ -52,3 +52,5 @@ The GNU C++ Standard library, libstc++, is distinct from the C runtime.
 * [Using the GNU Compiler Collection (CGG)](https://gcc.gnu.org/onlinedocs/gcc/)
 * [CNU Compiler Collection (GCC) Internals](https://gcc.gnu.org/onlinedocs/gccint/index.html#Top)
 * [The GNU C++ Library](https://gcc.gnu.org/onlinedocs/libstdc++/)
+* [The C Runtime Initialization, crt0.o](https://www.embecosm.com/appnotes/ean9/html/ch05s02.html)
+* [Linux x86 Program Start Up](http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html)
