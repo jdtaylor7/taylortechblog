@@ -68,6 +68,11 @@ Intro
 ## C++17/20 Features?
 Haven't looked into these for embedded yet
 
+## Useful Compiler Flags
+
+[C++ On Embedded Systems](https://bitbashing.io/embedded-cpp.html)
+
+
 ## References
 * [Main function - cppreference](https://en.cppreference.com/w/cpp/language/main_function)
 * [Linker Scripts](https://sourceware.org/binutils/docs/ld/Scripts.html#Scripts)
@@ -78,3 +83,4 @@ Haven't looked into these for embedded yet
 * [Modern C++ in embedded systems - Part 2: Evaluating C++](https://www.embedded.com/modern-c-embedded-systems-part-2-evaluating-c/)
 * [C99 Standard Draft N1256](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
 * [C++11 Standard Draft N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
+* [Effective C++ in an Embedded Environment](https://www.artima.com/shop/effective_cpp_in_an_embedded_environment)
