@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker_executor:
     docker:
-      - image: circleci/ruby:2.7.1-buster-node
+      - image: cimg/ruby:2.7.1-node
 
 jobs:
   setup:
