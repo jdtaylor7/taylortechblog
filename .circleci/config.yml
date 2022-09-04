@@ -24,7 +24,7 @@ jobs:
             bundle install
             bundle exec jekyll build
             rm -R ./_site/node_modules
-            bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --check-opengraph --url-ignore "feed.xml"
+            bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --assume-extension --ignore-urls="feed.xml" --allow-missing-href=true --ignore-status-codes=403 --enforce-https=false
 
 workflows:
   version: 2.1

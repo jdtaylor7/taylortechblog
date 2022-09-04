@@ -145,8 +145,8 @@ For more information about the translation phases, I would recommend reading eit
 
 * [cppreference.com for C](https://en.cppreference.com/w/c/language/translation_phases)
 * [cppreference.com for C++](https://en.cppreference.com/w/cpp/language/translation_phases)
-* [C99 Standard Draft N1256 (section 5.1.1.2)](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
-* [C++11 Standard Draft N3337 (section 2.2)](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
+* [C99 Standard Draft N1256 (section 5.1.1.2)](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+* [C++11 Standard Draft N3337 (section 2.2)](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 
 ## Two Types of Macros: Object- and Function-like
 
@@ -495,7 +495,7 @@ very concise and efficient solutions.
 ## References
 * [GCC preprocessor documentation](https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros)
 * [cppreference.com: Preprocessor replacing text macros](https://en.cppreference.com/w/cpp/preprocessor/replace)
-* [C99 Standard Draft N1256](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
-* [C++11 Standard Draft N3337](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
+* [C99 Standard Draft N1256](https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf)
+* [C++11 Standard Draft N3337](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf)
 * [Jonathan Boccara: 3 Types of Macros That Improve C++ Code](https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/)
 * [Eli Bendersky: Parsing C++ in Python with Clang](https://eli.thegreenplace.net/2011/07/03/parsing-c-in-python-with-clang)
