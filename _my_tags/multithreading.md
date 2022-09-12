@@ -1,4 +1,0 @@
----
-slug: multithreading
-name: multithreading
----

@@ -1,4 +1,0 @@
----
-slug: opengl
-name: OpenGL
----

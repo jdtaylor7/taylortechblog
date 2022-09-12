@@ -1,36 +1,401 @@
----
-layout: default
-title: "Tech musings"
-description: "Chalk uses all the best tools and merges them into one premium blogging theme."
----
+<!doctype html>
+<html lang="en">
+<head>
 
-<ul class="article-list">
-  {% for post in paginator.posts %}
-    <li class="article-list-item {% if site.scrollappear_enabled %}scrollappear{% endif %}">
-      <a href="{{ post.url | relative_url }}" title="{{ post.title }}">
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | Tech musings</title>
+  <meta name="description" content="Chalk uses all the best tools and merges them into one premium blogging theme.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Tech musings">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/">
+  <meta property="og:description" content="Chalk uses all the best tools and merges them into one premium blogging theme.">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/">
+  <meta name="twitter:title" content="Tech musings">
+  <meta name="twitter:description" content="Chalk uses all the best tools and merges them into one premium blogging theme.">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <ul class="article-list">
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/macros-in-c-and-cpp" title="Macros in C and C++">
         <h5>
-          {{ post.title }}
-          {% include svg-icon.html icon="arrow-right" %}
+          Macros in C and C++
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
         </h5>
       </a>
       <p>
-        {% if post.description %}
-          {{ post.description }}
-        {% else %}
-          {{ post.excerpt }}
-        {% endif %}
+        
+          How and Why They Work
+        
       </p>
-      {% include article/info-footer.html post=post %}
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    October 23, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      12 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/compilers" title="See all posts with tag 'Compilers'">Compilers</a>
+    
+  </div>
+</div>
     </li>
-  {% endfor %}
-  {% if paginator.total_pages > 1 %}
-    <li class="article-pagination {% if site.settings.scrollappear_enabled %}scrollappear{% endif %}">
-      {% if paginator.next_page %}
-        <a href="{{ paginator.next_page_path }}" class="article-pagination-left">{% include svg-icon.html icon="arrow-left" %} Older posts</a>
-      {% endif %}
-      {% if paginator.previous_page %}
-        <a href="{{ paginator.previous_page_path }}" class="article-pagination-right">Newer posts {% include svg-icon.html icon="arrow-right" %}</a>
-      {% endif %}
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/prometheus-introduction" title="Introducing Prometheus">
+        <h5>
+          Introducing Prometheus
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
+        </h5>
+      </a>
+      <p>
+        
+          Drone Simulation and Monitoring Application
+        
+      </p>
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    September 1, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      5 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/drone" title="See all posts with tag 'Drone'">Drone</a>
+    
+      
+      <a href="/tag/opengl" title="See all posts with tag 'OpenGL'">OpenGL</a>
+    
+  </div>
+</div>
     </li>
-  {% endif %}
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/drone-project-intro" title="Drone Project Introduction">
+        <h5>
+          Drone Project Introduction
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
+        </h5>
+      </a>
+      <p>
+        
+          Goals and Components of the Project
+        
+      </p>
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    August 8, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      5 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/drone" title="See all posts with tag 'Drone'">Drone</a>
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/cpp17" title="See all posts with tag 'C++17'">C++17</a>
+    
+      
+      <a href="/tag/hardware" title="See all posts with tag 'Hardware'">Hardware</a>
+    
+      
+      <a href="/tag/controls" title="See all posts with tag 'Controls'">Controls</a>
+    
+  </div>
+</div>
+    </li>
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/cpp-bounded-buffer-2" title="C++ Bounded Buffers, Part 2">
+        <h5>
+          C++ Bounded Buffers, Part 2
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
+        </h5>
+      </a>
+      <p>
+        
+          Implementing a Thread-Safe Bounded Buffer in C++
+        
+      </p>
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    July 16, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      9 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/multithreading" title="See all posts with tag 'multithreading'">multithreading</a>
+    
+  </div>
+</div>
+    </li>
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/cpp-bounded-buffer-1" title="C++ Bounded Buffers, Part 1">
+        <h5>
+          C++ Bounded Buffers, Part 1
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
+        </h5>
+      </a>
+      <p>
+        
+          Introduction to Bounded Buffers
+        
+      </p>
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    July 2, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      10 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/multithreading" title="See all posts with tag 'multithreading'">multithreading</a>
+    
+  </div>
+</div>
+    </li>
+  
+    <li class="article-list-item scrollappear">
+      <a href="/posts/configuring-manjaro-with-ansible" title="Configuring Manjaro with Ansible">
+        <h5>
+          Configuring Manjaro with Ansible
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-arrow-right">
+  <use href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right" xlink:href="/assets/arrow-right-05feb9da52810d15348895a9a885c61803f4d2ae681b4fc442b285fef184dd2b.svg#icon-arrow-right"></use>
+</svg>
+
+        </h5>
+      </a>
+      <p>
+        
+          Configuring Manjaro with Ansible
+        
+      </p>
+      <div class="article-list-footer">
+  <span class="article-list-date">
+    June 23, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      7 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/devops" title="See all posts with tag 'DevOps'">DevOps</a>
+    
+      
+      <a href="/tag/linux" title="See all posts with tag 'Linux'">Linux</a>
+    
+  </div>
+</div>
+    </li>
+  
+  
 </ul>
+
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>

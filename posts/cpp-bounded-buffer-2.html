@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | C++ Bounded Buffers, Part 2</title>
+  <meta name="description" content="Implementing a Thread-Safe Bounded Buffer in C++">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="C++ Bounded Buffers, Part 2">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/posts/cpp-bounded-buffer-2">
+  <meta property="og:description" content="Implementing a Thread-Safe Bounded Buffer in C++">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/posts/cpp-bounded-buffer-2">
+  <meta name="twitter:title" content="C++ Bounded Buffers, Part 2">
+  <meta name="twitter:description" content="Implementing a Thread-Safe Bounded Buffer in C++">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>C++ Bounded Buffers, Part 2</h1>
+            <p>Implementing a Thread-Safe Bounded Buffer in C++</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    July 16, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      9 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/multithreading" title="See all posts with tag 'multithreading'">multithreading</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>This is the second of two blog posts about bounded buffers. In <a href="https://www.taylortechblog.com/posts/cpp-bounded-buffer-1">part
+1</a> we discussed the
+types of problems bounded buffers can solve and how bounded buffers function at
+a high level. Here we will discuss the interface for a bounded buffer, my
+implementation, and how to use my implementation. For reference the code is
+located <a href="https://github.com/jdtaylor7/bounded_buffer">here</a>.</p>
+
+<h2 id="interface">Interface</h2>
+
+<p>I decided to base the bounded buffer’s interface off that of most C++ standard
+library containers, for consistency and ease of use. Since bounded buffers are
+queues, it primarily draws inspiration from the C++
+<a href="https://en.cppreference.com/w/cpp/container/queue">queue</a> container. To that
+end, the class has the following access operations:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">empty</code></li>
+  <li><code class="language-plaintext highlighter-rouge">size</code></li>
+  <li><code class="language-plaintext highlighter-rouge">front</code></li>
+  <li><code class="language-plaintext highlighter-rouge">back</code></li>
+</ul>
+
+<p>It also draws inspiration from the
+<a href="https://en.cppreference.com/w/cpp/container/vector">vector</a> container by
+including the <code class="language-plaintext highlighter-rouge">capacity</code> and <code class="language-plaintext highlighter-rouge">clear</code> operations. Lastly, I wanted a
+<code class="language-plaintext highlighter-rouge">dropped_elements</code> access operation which tracks the number of failed push
+operations. This is a specific requirement for my use case and can be removed if
+you are using the code for your own project.</p>
+
+<p>For pushing/popping functionality, I implemented all of the access solutions
+mentioned back in part 1:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">try_push</code>/<code class="language-plaintext highlighter-rouge">try_pop</code></li>
+  <li><code class="language-plaintext highlighter-rouge">push_wait</code>/<code class="language-plaintext highlighter-rouge">pop_wait</code></li>
+  <li><code class="language-plaintext highlighter-rouge">push_wait_for</code>/<code class="language-plaintext highlighter-rouge">pop_wait_for</code></li>
+  <li><code class="language-plaintext highlighter-rouge">force_push</code></li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">try_push</code> and <code class="language-plaintext highlighter-rouge">push_wait_for</code> are the specific operations tracked by
+<code class="language-plaintext highlighter-rouge">dropped_elements</code>.</p>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>Since the implementations of most of the buffer’s functions are similar, we’ll
+dive into just two of them: <code class="language-plaintext highlighter-rouge">try_pop</code> and <code class="language-plaintext highlighter-rouge">push_wait_for</code>.</p>
+
+<p>First, <code class="language-plaintext highlighter-rouge">try_pop</code>:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="code"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">BoundedBuffer</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">try_pop</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">auto</span> <span class="n">rv</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">.</span><span class="n">front</span><span class="p">());</span>
+    <span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+    <span class="n">q_has_space</span><span class="p">.</span><span class="n">notify_one</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">rv</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>The first order of business is to lock the buffer’s mutex (line 4) to ensure
+that race conditions do not occur, as discussed in part 1. Any other threads
+attempting to interact with the buffer in the meantime must either wait or fail.
+Utilizing a <code class="language-plaintext highlighter-rouge">lock_guard</code> is easy and enforces
+<a href="https://en.cppreference.com/w/cpp/language/raii">RAII</a> by automatically
+releasing the lock upon function exit.</p>
+
+<p>Next, we check to see whether there is any data to pop from the buffer (line 5).
+If no data is present, the function fails immediately by returning a  <code class="language-plaintext highlighter-rouge">nullptr</code>
+(line 7). This is a clean way of depicting function failure in C++, but there
+are many other ways. The function could throw an exception, return a pair
+consisting of a bool and the value, return a <code class="language-plaintext highlighter-rouge">std::optional</code>, etc.</p>
+
+<p>If the function has not failed, it continues by retrieving the next value (line
+9) and then popping it from the internal queue (line 10). Before returning the
+value (line 12), it calls a notify function on the internal condition variable
+<code class="language-plaintext highlighter-rouge">q_has_space</code> (line 11). This notification will allow the next <code class="language-plaintext highlighter-rouge">push_wait</code> or
+<code class="language-plaintext highlighter-rouge">push_wait_for</code> function to be woken up and executed after this function has
+finished.</p>
+
+<p><em>Quick note: Pop operations in queues/stacks sometimes only remove an element
+from the data structure, without returning said value to the caller. Sometimes
+they do both, as is the case with my implementation.</em></p>
+
+<p>Now let’s look at <code class="language-plaintext highlighter-rouge">push_wait_for</code>:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="code"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span>
+<span class="kt">bool</span> <span class="n">BoundedBuffer</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">push_wait_for</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">success</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">m</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">q_has_space</span><span class="p">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">lk</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="p">,</span>
+            <span class="p">[</span><span class="k">this</span><span class="p">]{</span> <span class="k">return</span> <span class="n">q</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">cap</span><span class="p">;</span> <span class="p">}))</span>
+    <span class="p">{</span>
+        <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="n">dropped</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">q_has_element</span><span class="p">.</span><span class="n">notify_one</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">success</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>This member function starts by locking the buffer’s internal mutex (line 7),
+just like all of the other member functions. It then calls a wait function on
+one of the buffer’s condition variables (lines 8-10), passing in the just-locked
+mutex. Note that here a
+<a href="https://en.cppreference.com/w/cpp/thread/unique_lock">unique_lock</a> is used to
+lock the mutex, as is required for the <code class="language-plaintext highlighter-rouge">condition_variable::wait_for</code> function.
+It enforces RAII just like a <code class="language-plaintext highlighter-rouge">lock_guard</code>, so there’s no need to manually unlock
+the mutex at the end of the function.</p>
+
+<p>There is some complexity to <code class="language-plaintext highlighter-rouge">condition_variable::wait_for</code>, so the next few
+paragraphs will discuss the function in depth. First, one of its required
+arguments is a mutex which has been locked by the current thread. Second, the
+mutex must be shared by the other threads waiting on the same condition
+variable. Failure to meet these conditions results in undefined behavior, as
+documented in the <a href="https://en.cppreference.com/w/cpp/thread/condition_variable/wait_for">cppreference
+page</a>.</p>
+
+<p>In addition, <code class="language-plaintext highlighter-rouge">wait_for</code> has two function signatures. One accepts a mutex and a
+timeout duration, while the other also accepts a
+<a href="https://en.cppreference.com/w/cpp/named_req/Predicate">predicate</a>. A predicate
+is just an expression which returns a boolean. The purpose of said predicate in
+this case is to prevent <a href="https://en.wikipedia.org/wiki/Spurious_wakeup">spurious
+wakeups</a>, which is a common
+phenomenon with condition variables. Spurious wakeups occur when a waiting
+thread is woken up without the required condition actually being met. In this
+case that would mean the <code class="language-plaintext highlighter-rouge">push_wait_for</code> thread has been woken up without
+<code class="language-plaintext highlighter-rouge">notify_one</code> having been called in any <code class="language-plaintext highlighter-rouge">pop</code> functions. Double checking the
+actual state of the buffer is thus needed to prevent spurious wakeups from
+causing bugs.</p>
+
+<p>Lastly, the actual operation of <code class="language-plaintext highlighter-rouge">wait_for</code> is a bit counterintuitive. If the
+function requires a locked mutex, how is it possible for another thread to be
+woken up? It might seem this would cause a deadlock since no other thread can
+use the mutex while the thread is waiting. Fortunately, this does not cause a
+deadlock in practice. The <code class="language-plaintext highlighter-rouge">wait_for</code> function, after receiving a locked mutex,
+unlocks the mutex while waiting. Upon waking up, it automatically re-locks the
+mutex without any additional action from the programmer.</p>
+
+<p>Now, onto <code class="language-plaintext highlighter-rouge">wait_for</code>’s return value. If the function succeeds before the timeout
+has expired, it returns true. In this case, that would mean an empty space
+became available in the buffer before the timeout expired. The element can thus
+be pushed in to the buffer (lines 12-13). If instead the timeout expires before
+an empty space is available, the buffer acknowledges this by incrementing
+<code class="language-plaintext highlighter-rouge">dropped</code> and setting the <code class="language-plaintext highlighter-rouge">success</code> flag to false (lines 17-18). Regardless of
+the success of this action, the buffer must now contain at least one element so
+the <code class="language-plaintext highlighter-rouge">q_has_element</code> condition variable can be notified before the function
+returns.</p>
+
+<h2 id="testing-and-usage">Testing and Usage</h2>
+
+<p>Testing is accomplished with <a href="https://github.com/google/googletest">GoogleTest</a>
+and many usage examples of the bounded buffer can be found in the
+<a href="https://github.com/jdtaylor7/bounded_buffer/blob/master/test/bounded_buffer_test.cpp">tests</a> themselves.
+Some usage examples are also discussed below.</p>
+
+<p>The tests can be run with <a href="https://bazel.build/">Bazel</a>:</p>
+
+<p><code class="language-plaintext highlighter-rouge">bazel test --config=linux //test:bounded_buffer</code></p>
+
+<p>or with <a href="https://cmake.org/">CMake</a> via a testing script:</p>
+
+<p><code class="language-plaintext highlighter-rouge">./test.sh</code></p>
+
+<p>Let’s look at the first usage case. Here we create a bounded buffer object with
+a capacity value and add/remove elements via <code class="language-plaintext highlighter-rouge">try_push</code> and <code class="language-plaintext highlighter-rouge">try_pop</code>,
+respectively.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="code"><pre><span class="cp">#include</span> <span class="cpf">&lt;cassert&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp">
+</span>
+<span class="cp">#include</span> <span class="cpf">"bounded_buffer.hpp"</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">capacity</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">buf</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BoundedBuffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">capacity</span><span class="p">);</span>
+
+    <span class="n">buf</span><span class="o">-&gt;</span><span class="n">try_push</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">buf</span><span class="o">-&gt;</span><span class="n">try_push</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">front</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">back</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">capacity</span><span class="p">()</span> <span class="o">==</span> <span class="mi">5</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">empty</span><span class="p">()</span> <span class="o">==</span> <span class="nb">false</span><span class="p">);</span>
+
+    <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">try_pop</span><span class="p">());</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="nb">nullptr</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="o">*</span><span class="n">result</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">try_pop</span><span class="p">());</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="nb">nullptr</span><span class="p">);</span>
+    <span class="n">assert</span><span class="p">(</span><span class="o">*</span><span class="n">result</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>It’s important to remember that the pop operations return <code class="language-plaintext highlighter-rouge">unique_ptrs</code> which
+must be moved into a result pointer. Of course one should test whether that
+result pointer is null before dereferencing it.</p>
+
+<p>Next is a more complex example which demonstrates the bounded buffer being used
+in a producer/consumer application.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre></td><td class="code"><pre><span class="cp">#include</span> <span class="cpf">&lt;cassert&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;chrono&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
+<span class="cp">#include</span> <span class="cpf">"bounded_buffer.hpp"</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="o">::</span><span class="n">chrono_literals</span><span class="p">;</span>
+
+    <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">buf_cap</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
+    <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mx">5s</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">buf</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">BoundedBuffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">buf_cap</span><span class="p">);</span>
+
+    <span class="k">constexpr</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">vec_cap</span> <span class="o">=</span> <span class="mi">1'000'000</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">producer</span><span class="p">(</span><span class="n">vec_cap</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">consumer</span><span class="p">{};</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">producer</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">producer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">t1</span><span class="p">([</span><span class="o">&amp;</span><span class="p">]{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="n">e</span> <span class="o">:</span> <span class="n">producer</span><span class="p">)</span>
+            <span class="n">assert</span><span class="p">(</span><span class="n">buf</span><span class="o">-&gt;</span><span class="n">push_wait_for</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span> <span class="o">==</span> <span class="nb">true</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">t2</span><span class="p">([</span><span class="o">&amp;</span><span class="p">]{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="mx">1s</span><span class="p">);</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">consumer</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">vec_cap</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">buf</span><span class="o">-&gt;</span><span class="n">pop_wait_for</span><span class="p">(</span><span class="n">timeout</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span>
+                <span class="n">consumer</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">));</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+
+    <span class="n">t1</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+    <span class="n">t2</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">producer</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">consumer</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">consumer</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">assert</span><span class="p">(</span><span class="n">consumer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Values are transferred from a large source vector to a large destination vector
+using a much smaller bounded buffer. The consumer thread is delayed by one
+second, while both threads wait for five seconds before giving up and failing.
+Even if a failure does occur on a thread (due to a timeout), that thread will
+keep running. This test should pass on most systems, but the timeout parameters
+and buffer size can be tweaked if necessary.</p>
+
+<p>If you don’t recognize the syntax used in the thread constructors above, I would
+highly recommend looking into
+<a href="https://en.cppreference.com/w/cpp/language/lambda">lambdas</a> as they are quite
+convenient in these and other scenarios. Here they allow us to define a function
+for a thread without writing a separate, named function.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>And that’s it! While the data structures in the C++ standard library are not
+inherently thread-safe, it is quite possible to wrap them in a thread-safe
+interface and customize them for your specific needs. C++11 has provided many of
+the mechanisms to do so among library headers such as <code class="language-plaintext highlighter-rouge">&lt;thread&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;mutex&gt;</code>,
+<code class="language-plaintext highlighter-rouge">&lt;condition_variable&gt;</code>, etc. Even more functionality is added to the language
+with every release.</p>
+
+<p>The code is located <a href="https://github.com/jdtaylor7/bounded_buffer">here</a>.
+Suggestions and pull requests are welcome.</p>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://en.cppreference.com/w/cpp/language/raii">RAII - cppreference</a></li>
+  <li><a href="https://en.cppreference.com/w/cpp/named_req/Predicate">Predicates - cppreference</a></li>
+  <li><a href="https://en.cppreference.com/w/cpp/language/lambda">Lambdas - cppreference</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Spurious_wakeup">Spurious wakeups - Wikpedia</a></li>
+</ul>
+
+          </div>
+
+          <div class="reach-out">
+            <center>
+              <em>For questions or comments, please reach out via
+                <a href="mailto:jdtaylor7@gmail.com" title="Send email">
+                  email
+                </a>.
+              </em>
+            </center>
+          </div>
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>

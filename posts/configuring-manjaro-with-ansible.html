@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | Configuring Manjaro with Ansible</title>
+  <meta name="description" content="Configuring Manjaro with Ansible">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Configuring Manjaro with Ansible">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/posts/configuring-manjaro-with-ansible">
+  <meta property="og:description" content="Configuring Manjaro with Ansible">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/posts/configuring-manjaro-with-ansible">
+  <meta name="twitter:title" content="Configuring Manjaro with Ansible">
+  <meta name="twitter:description" content="Configuring Manjaro with Ansible">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Configuring Manjaro with Ansible</h1>
+            <p>Configuring Manjaro with Ansible</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    June 23, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      7 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/devops" title="See all posts with tag 'DevOps'">DevOps</a>
+    
+      
+      <a href="/tag/linux" title="See all posts with tag 'Linux'">Linux</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>I have been an avid Linux user for the past five years and have run Arch Linux
+installations alongside Windows installations on most of my personal systems.
+Recently, I’ve decided to try out Manjaro since it has most of the feature set
+of Arch but with an extremely quick and convenient installation procedure.
+Instead of just installing it manually, I decided to apply some DevOps
+techniques to build a complete installation procedure which is simple to use,
+deploy, and update.</p>
+
+<h3 id="configuration-management">Configuration Management</h3>
+
+<p>In DevOps, configuration management is the concept of organizing the software
+packages and settings present in one or more machines. A common application is
+for system administrators to manage a cluster of servers from a central control
+server.</p>
+
+<p>For my use case, I can employ configuration management to automatically install
+lists of packages and configuration files for applications like Bash, Vim, Atom,
+etc.</p>
+
+<h3 id="ansible">Ansible</h3>
+
+<p>There are many configuration management tools out there right now, including
+popular entries such as Ansible, Chef, Puppet, and SaltStack. Since I have not
+dabbled with configuration management before, I decided to use Ansible because
+it is quite easy to set up and has a large following.</p>
+
+<p><a href="/assets/ansible-logo-wide-46e9b824b726a53f7b39c4e990f8cadffb1db4e2aa33ecd5f1d397531093ef86.png">
+  <img src="/assets/ansible-logo-wide-46e9b824b726a53f7b39c4e990f8cadffb1db4e2aa33ecd5f1d397531093ef86.png" alt="Ansible logo" class="zooming" data-rjs="/assets/ansible-logo-wide-46e9b824b726a53f7b39c4e990f8cadffb1db4e2aa33ecd5f1d397531093ef86.png" data-zooming-width="659" data-zooming-height="192" />
+</a></p>
+
+<p>Ansible uses the “push” model of configuration management, meaning that a
+central server pushes configuration settings to various clients. It is also
+agentless, in that Ansible code runs on the server only, not on the clients. The
+server sends all necessary commands over the network. This is convenient since
+client machines simply need a network connection to start being configured.</p>
+
+<p>Our goal here is to orchestrate the installation of a Linux environment on a
+single machine which has just installed a fresh version of Manjaro, so the
+client and server are the same machine. This is a simple and valid architecture
+for Ansible to operate upon.</p>
+
+<h3 id="playbooks-and-modules">Playbooks and Modules</h3>
+
+<p>The functionality of Ansible is realized through the use of “playbooks”. Each
+playbook is a <a href="https://en.wikipedia.org/wiki/YAML">YAML</a> file which describes a
+set of actions. Since playbooks can effectively call other playbooks like
+functions, I split the installation process among multiple playbooks, with one
+main file that calls the rest.</p>
+
+<p>Within a playbook is a series of “plays”, which are sets of instructions
+executed with some environmental state. This state can include a list of
+machines (on which the instructions are executed), variables, source files, etc.</p>
+
+<p>Plays are further divided into “tasks”, which are the individual instructions
+themselves. In general, tasks utilize “modules” to actually define the job they
+want to accomplish. Modules are abstractions of various software tools that
+allow Ansible users to utilize such tools in a uniform way.</p>
+
+<p>Here’s a simple playbook:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml"><table class="rouge-table"><tbody><tr><td class="gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="code"><pre><span class="nn">---</span>
+<span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install config files</span>
+  <span class="na">hosts</span><span class="pi">:</span> <span class="s">localhost</span>
+  <span class="na">connection</span><span class="pi">:</span> <span class="s">local</span>
+  <span class="na">vars</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">home_dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/home/user1"</span>
+  <span class="na">tasks</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Install</span><span class="nv"> </span><span class="s">.bashrc"</span>
+      <span class="na">copy</span><span class="pi">:</span>
+        <span class="na">src</span><span class="pi">:</span> <span class="s">../config/.bashrc</span>
+        <span class="na">dest</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">home_dir</span><span class="nv"> </span><span class="s">}}"</span>
+    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Install</span><span class="nv"> </span><span class="s">.vimrc"</span>
+      <span class="na">copy</span><span class="pi">:</span>
+        <span class="na">src</span><span class="pi">:</span> <span class="s">../config/.vimrc</span>
+        <span class="na">dest</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">home_dir</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Let’s break down the structure of this playbook. First, the playbook file itself
+begins with a line of three dashes. While not technically required here, this is
+necessary when specifying YAML directives and in some other cases. Next, all the
+code shown is part of a single play which is named “Install config files.”</p>
+
+<p>The “environmental state” of this play is all of the key-value pairs above the
+“tasks” directive: the name of the play, the machine on which it will run, and a
+variable accessible by each task in the play. As a side note, variables are
+accessed by double bracing with quotes as shown on lines 11 and 15.</p>
+
+<p>Lastly, the tasks themselves. They each have a name and a module, which fully
+describes their operation. In this case, each task uses the <code class="language-plaintext highlighter-rouge">copy</code> module to
+copy a single file to a destination directory. <code class="language-plaintext highlighter-rouge">src</code> and <code class="language-plaintext highlighter-rouge">dest</code> are parameters
+consumed by the copy module which define where files/directories should be
+copied to and from. Other parameters are available to the module and can be used
+to achieve more complex results. The <a href="https://docs.ansible.com/">Ansible documentation</a> is excellent and describes all modules and their
+parameters clearly.</p>
+
+<h3 id="installing-packages">Installing Packages</h3>
+
+<p>For my system, there are three types of package to install: Linux packages, Atom
+text editor packages, and Ruby gems. The package managers used for these package
+types, pacman, apm, and gem, are each represented slightly differently in
+Ansible. Both pacman and gem have an Ansible module abstraction (called <code class="language-plaintext highlighter-rouge">pacman</code>
+and <code class="language-plaintext highlighter-rouge">gem</code>, respectively), while apm must be run as a shell command. Thankfully,
+all three representations are straightforward to use. Let’s look at pacman’s
+usage.</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="na">tasks</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install Linux packages with pacman</span>
+    <span class="na">pacman</span><span class="pi">:</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">pacman_packages</span><span class="nv"> </span><span class="s">}}"</span>
+        <span class="na">state</span><span class="pi">:</span> <span class="s">latest</span></code></pre></figure>
+
+<p>In the above code snippet, we invoke the <code class="language-plaintext highlighter-rouge">pacman</code> module and simply hand it a
+list of packages, named <code class="language-plaintext highlighter-rouge">pacman_packages</code>. We also specify that we want the
+latest version of each package. <code class="language-plaintext highlighter-rouge">pacman_packages</code> is a YAML list variable
+defined in a separate YAML file. This is the simplest module implementation for
+a package manager because Ansible knows to loop over every item of the list
+automatically.</p>
+
+<p>Executing the other two package managers, as mentioned, works slightly
+differently. The <code class="language-plaintext highlighter-rouge">gem</code> module does not support list inputs to the <code class="language-plaintext highlighter-rouge">name</code>
+parameter. Instead, the list is looped over manually using the <code class="language-plaintext highlighter-rouge">with_items</code>
+lookup plugin:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install Ruby gems</span>
+    <span class="na">gem</span><span class="pi">:</span>
+        <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">item</span><span class="nv"> </span><span class="s">}}"</span>
+        <span class="na">state</span><span class="pi">:</span> <span class="s">latest</span>
+    <span class="na">with_items</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">ruby_gems</span><span class="nv"> </span><span class="s">}}"</span></code></pre></figure>
+
+<p>The Atom package manager, apm, is not implemented as an Ansible module.
+Therefore, it must be run as a shell command rather than a module.</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install Atom packages</span>
+    <span class="na">shell</span><span class="pi">:</span> <span class="s">apm install "{{ item }}"</span>
+    <span class="na">with_items</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">atom_packages</span><span class="nv"> </span><span class="s">}}"</span></code></pre></figure>
+
+<h3 id="installing-config-files">Installing Config Files</h3>
+
+<p>My setup includes configurations for Bash, Vim, etc. Copies of these config
+files are maintained in the same repo as the Ansible code, so it is a simple
+matter of copying these files into the user’s home directory using the <code class="language-plaintext highlighter-rouge">copy</code>
+module. The first Ansible code snippet earlier in this post shows an example of
+using <code class="language-plaintext highlighter-rouge">copy</code> in this way.</p>
+
+<h3 id="user-and-ssh-settings">User and SSH Settings</h3>
+
+<p>User group settings, SSH keys, and Github SSH key integration can all be managed
+through Ansible as well. While one manual step is required here, namely in
+generating a <a href="https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line">Github access token</a>
+and passing it to Ansible, this still requires less effort than uploading SSH
+keys manually. These additional steps can be explained via command line print
+statements by the Ansible playbook as it runs.</p>
+
+<p>Editing the user setting is accomplished by using the <code class="language-plaintext highlighter-rouge">group</code>, <code class="language-plaintext highlighter-rouge">lineinfile</code>, and
+<code class="language-plaintext highlighter-rouge">user</code> modules. These modules allow Ansible to add a “wheel” group, grant that
+group sudo privileges by editing the sudo config file, and then add the current
+user to that group. The wheel group is an administrative group often used to
+grant sudo access.</p>
+
+<p>Setting up Github SSH keys is performed via a HTTP POST method. This is the task
+that requires the aforementioned Github access token, since Github has
+disallowed authentication via username/password. The task is as follows:</p>
+
+<figure class="highlight"><pre><code class="language-yaml" data-lang="yaml">  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Upload SSH keys to Github</span>
+    <span class="na">uri</span><span class="pi">:</span>
+        <span class="na">url</span><span class="pi">:</span> <span class="s">https://api.github.com/user/keys</span>
+        <span class="na">user</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">github_username</span><span class="nv"> </span><span class="s">}}"</span>
+        <span class="na">password</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">github_token</span><span class="nv"> </span><span class="s">}}"</span>
+        <span class="na">method</span><span class="pi">:</span> <span class="s">POST</span>
+        <span class="na">body_format</span><span class="pi">:</span> <span class="s">json</span>
+        <span class="na">force_basic_auth</span><span class="pi">:</span> <span class="s">yes</span>
+        <span class="na">status_code</span><span class="pi">:</span> <span class="m">201</span>
+        <span class="na">body</span><span class="pi">:</span>
+            <span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">github_ssh_key_name</span><span class="nv"> </span><span class="s">}}"</span>
+            <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">lookup('file',</span><span class="nv"> </span><span class="s">'{{</span><span class="nv"> </span><span class="s">key_path</span><span class="nv"> </span><span class="s">}}.pub')</span><span class="nv"> </span><span class="s">}}"</span></code></pre></figure>
+
+<p>All of the Ansible variables (<code class="language-plaintext highlighter-rouge">github_username</code>, <code class="language-plaintext highlighter-rouge">github_token</code>, etc.) are
+collected from the command line when the Ansible script runs.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>While I only needed these features mentioned here to create my specific
+installation procedure, Ansible supports many other tools and tricks. One can
+manage databases, edit partitions, send notifications through applications like
+Slack, and even run other configuration management tools such as Puppet.</p>
+
+<p>The code featuring all of this Ansible functionality is located
+<a href="https://github.com/jdtaylor7/workflow">here</a>, under the <code class="language-plaintext highlighter-rouge">ansible</code> directory.</p>
+
+          </div>
+
+          <div class="reach-out">
+            <center>
+              <em>For questions or comments, please reach out via
+                <a href="mailto:jdtaylor7@gmail.com" title="Send email">
+                  email
+                </a>.
+              </em>
+            </center>
+          </div>
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>

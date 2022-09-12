@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | Drone Project Introduction</title>
+  <meta name="description" content="Goals and Components of the Project">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Drone Project Introduction">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/posts/drone-project-intro">
+  <meta property="og:description" content="Goals and Components of the Project">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/posts/drone-project-intro">
+  <meta name="twitter:title" content="Drone Project Introduction">
+  <meta name="twitter:description" content="Goals and Components of the Project">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Drone Project Introduction</h1>
+            <p>Goals and Components of the Project</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    August 8, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      5 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/drone" title="See all posts with tag 'Drone'">Drone</a>
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/cpp17" title="See all posts with tag 'C++17'">C++17</a>
+    
+      
+      <a href="/tag/hardware" title="See all posts with tag 'Hardware'">Hardware</a>
+    
+      
+      <a href="/tag/controls" title="See all posts with tag 'Controls'">Controls</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>This is the first post of many documenting my drone project. This is the largest
+project I have ever undertaken and it is meant to hone my skills in many
+different technologies and aspects of software, hardware, and control theory. As
+such, it will comprise multiple sub-projects and span a number of months. This
+post will state the high level goals of the project and its various components.</p>
+
+<h2 id="goals">Goals</h2>
+
+<p>In one sentence, the point of this project is to create a drone from scratch
+which can fly autonomously. To be more specific, the primary goal is for the
+drone to maintain level flight and accept commands to translate or rotate in
+space. Additional autonomy could then be built upon this foundation. This
+requires deep knowledge in a number of engineering fields, primarily in
+software, hardware, and control theory.</p>
+
+<p>The technical goals of the project are detailed in the Components section below.
+In addition, there are a few overarching goals I would like to highlight:</p>
+
+<ul>
+  <li>Application of C++17 (in both application software and embedded software)</li>
+  <li>Hardware control and design as necessary</li>
+  <li>Graphics programming for viewing/simulating the drone</li>
+  <li>Robotics controls engineering in general</li>
+</ul>
+
+<h2 id="components">Components</h2>
+
+<p>This section breaks down the subcomponents of the project. One or multiple posts
+will dive into the details of each section in the future.</p>
+
+<h4 id="the-drone-itself">The Drone Itself</h4>
+
+<p>First and foremost, the physical drone. I have decided to build the drone from
+scratch at a subsystem level. To be more precise, I purchased and assembled the
+macro components of a drone, i.e. the flight controller, the motors, the frame,
+etc. Since the main point of this project is not hardware design, most of these
+boards were bought commercially. That being said, I did have a need for some
+custom hardware so I designed and manufactured the drone’s wireless
+communication board.</p>
+
+<p>As for the software, I initially flashed the flight controller with an open
+source drone firmware. This allowed me to check that the hardware worked
+correctly, by flying the drone manually with a handheld radio transmitter. The
+final firmware, currently under development, is written from scratch in C++17.
+This custom firmware utilizes FreeRTOS as a real-time operating system to manage
+task scheduling.</p>
+
+<p>The firmware’s duties include consuming and processing sensor data, deriving the
+state of the drone from this sensor data, running this state through an on-board
+control algorithm, and commanding the drone’s motors accordingly. It will also
+downlink data in real-time through a telemetry system, which is detailed below.</p>
+
+<h4 id="telemetry-pipeline">Telemetry Pipeline</h4>
+
+<p>The autonomous drone firmware itself, while the focal point of the project, is
+just one component. Various infrastructure is also being developed to support
+the drone. One part of that infrastructure is a telemetry pipeline which
+provides insight into the drone’s state in real-time.</p>
+
+<p>The pipeline is architected as follows:</p>
+
+<ul>
+  <li>On every control loop cycle, the drone flight controller gathers data from
+sensors and sends it to an on-board telemetry transmitter</li>
+  <li>The drone’s telemetry transmitter downlinks this data to a telemetry receiver
+(PCB connected to a computer via USB)</li>
+  <li>The telemetry receiver then forwards the data to a desktop viewing application</li>
+</ul>
+
+<p><a href="/assets/telemetry-pipeline-diagram@2x-3555fe6b2d9ba488774b71af183a85c1466135334193466d75f059892a6c3af4.png">
+  <img src="/assets/telemetry-pipeline-diagram-c3bdfba414e379f32c42e446bde31383938f8badc868454076c48018b2efb0b6.png" alt="Diagram of telemetry pipeline" class="zooming" data-rjs="/assets/telemetry-pipeline-diagram@2x-3555fe6b2d9ba488774b71af183a85c1466135334193466d75f059892a6c3af4.png" data-zooming-width="2116" data-zooming-height="1307" />
+</a></p>
+
+<p>The “viewing application” mentioned above renders a model of the drone in a 3D
+environment which allows for a visual inspection of the drone’s state. This
+allows the user to easily check the drone’s sensor readings and derived state.</p>
+
+<h4 id="control-theory">Control Theory</h4>
+
+<p>To get the drone flying autonomously, a few control theory concepts must be
+implemented. First, the drone must determine its “state”. That is, the drone
+must determine its own position and orientation in space. This will be
+accomplished with a Kalman filter, which is a sensor fusion algorithm capable of
+deriving the state of a system from various sensor readings.</p>
+
+<p>Before a Kalman filter can be employed, an accurate dynamic model must be
+created for the system. This allows us to construct the matrices used in the
+Kalman filter computations.</p>
+
+<p>Lastly, a stable controller must be developed to ensure our system stays at a
+given set point (i.e. position and orientation). This may be possible to develop
+either theoretically (with the aforementioned dynamic model) or experimentally
+(with a simulator, as discussed below). PID controllers are quite popular and
+straightforward to implement, but a different controller could also be used.</p>
+
+<h4 id="tuning-and-testing">Tuning and Testing</h4>
+
+<p>While testing a design and tweaking it to work just perfectly is challenging
+with any engineering system, it is especially challenging when the system is an
+airborne one with the potential to cause damage. Because of this, thought must
+be put into safely testing the system from the very beginning.</p>
+
+<p>As a first step, simulating the drone is helpful for a number of reasons. First,
+it allows quick iteration of the PID controller without having to set up the
+drone, clear a space for the drone to fly, charge a battery, etc. Second, it is
+much safer to test the initial controller in a simulated environment where the
+drone cannot cause any physical harm or damage.</p>
+
+<p>Once the simulator is built, the PID controller can be tuned fairly easily. The
+next step is an iterative process to see how well a tuned controller maps from
+the simulated drone to the physical drone. This essentially tests the fidelity
+of the dynamic model: If the controller maps well, then the model is accurate
+enough. Else, additional complexity must be added to the model. Additional
+sensors may also be added if finding a stable controller algorithm proves
+impossible.</p>
+
+<p>When testing the physical drone, additional safety precautions will be put in
+place. First, the drone will be tethered to the ground to prevent problems if
+its flight becomes too erratic. Second, a remote on/off switch has been
+developed to instantly turn the drone off if necessary. Third, the tests
+themselves will start very simple and get more complex as the system is refined.
+For example, the very first test will be a hover test starting in the air. The
+second test will be translating up and down in space. Tests will then advance in
+complexity from there, progressing to rotating, translating horizontally, etc.</p>
+
+<h4 id="commanding">Commanding</h4>
+
+<p>The final step of the project is to create a method for controlling the drone.
+While it must be able to maintain level flight autonomously, it must also accept
+basic position/orientation commands. For example, it could be commanded to
+translate vertically/horizontally and rotate about all three axes. A desktop
+application will be developed to send these inputs to the drone. This
+application has not been designed yet, but it may be bundled into the viewing
+application mentioned earlier.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This project is quite large, and intentionally so. It is essentially developing
+a fully automated robotics system from the ground up, in a way that lets me
+experience each facet of the process. Through this I will develop a better
+understanding of the design process as a whole, from the perspectives of
+software, control theory, hardware, etc. Stay tuned for more posts about this
+project!</p>
+
+          </div>
+
+          <div class="reach-out">
+            <center>
+              <em>For questions or comments, please reach out via
+                <a href="mailto:jdtaylor7@gmail.com" title="Send email">
+                  email
+                </a>.
+              </em>
+            </center>
+          </div>
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>

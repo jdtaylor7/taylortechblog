@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | Macros in C and C++</title>
+  <meta name="description" content="How and Why They Work">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Macros in C and C++">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/posts/macros-in-c-and-cpp">
+  <meta property="og:description" content="How and Why They Work">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/posts/macros-in-c-and-cpp">
+  <meta name="twitter:title" content="Macros in C and C++">
+  <meta name="twitter:description" content="How and Why They Work">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>Macros in C and C++</h1>
+            <p>How and Why They Work</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    October 23, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      12 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/compilers" title="See all posts with tag 'Compilers'">Compilers</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>While quite a divisive topic in the C++ community, macros are widely used in
+legacy code and for niche cases in more modern code. As such, understanding them
+is crucial to understanding both the preprocessor and C++ as a whole.</p>
+
+<p>This article will cover how macros work and the basics of using them in your
+code. Towards the end of the article I’ve also detailed how to use the
+preprocessor directly to see the output of macro replacements, a topic rarely
+discussed.</p>
+
+<p>I won’t be covering every tiny detail about macros or when you should/shouldn’t
+use them in C++. If you’d like to see some common C++ use cases, Jonathan
+Boccara gives great examples in his article <a href="https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/"><em>3 Types of Macros That Improve C++
+Code</em></a>.
+The GCC preprocessor documentation also includes a section on <a href="https://gcc.gnu.org/onlinedocs/cpp/Macro-Pitfalls.html#Macro-Pitfalls">macro
+pitfalls</a>.</p>
+
+<p>In general, most of the examples I present here are not considered the best
+applications of macros. That being said, they help illustrate many aspects of
+macros in straightforward ways.</p>
+
+<h2 id="what-are-macros">What are Macros?</h2>
+
+<p>A macro is an identifier that represents some expression. The expression,
+sometimes called a “replacement list”, can be any snippet of code.</p>
+
+<p>All instances of a macro are replaced (or <em>expanded</em>) by the preprocessor early
+in the compilation process. This occurs specifically during <a href="https://en.cppreference.com/w/cpp/language/translation_phases">phase
+4</a> of compilation
+in both C and C++. The <code class="language-plaintext highlighter-rouge">#define</code> preprocessor directive is used to create
+macros. The basic syntax is:</p>
+
+<p><code class="language-plaintext highlighter-rouge">#define my_macro replacement list</code></p>
+
+<p>The replacement list includes all content until the end of the line. This can be
+extended to multiple lines by placing a backslash at the end of the line:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">#define MY_FRUIT PINEAPPLE, \
+                 PEACH, \
+                 MANGO</code></pre></figure>
+
+<p>Note that when the macro is expanded, the replacement list will all be put on
+one line.</p>
+
+<p>In addition to being <em>defined</em>, macros can be <em>undefined</em>. This is the only way
+to apply scope to macros.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">x</span><span class="p">;</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">FANCY_MACRO</span><span class="p">;</span>
+<span class="cp">#define FANCY_MACRO "chartreuse"
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">FANCY_MACRO</span><span class="p">;</span>
+<span class="cp">#undef FANCY_MACRO
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">FANCY_MACRO</span><span class="p">;</span></code></pre></figure>
+
+<p>The above code would be expanded as follows:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">x</span><span class="p">;</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">FANCY_MACRO</span><span class="p">;</span>
+<span class="n">x</span> <span class="o">=</span> <span class="s">"chartreuse"</span><span class="p">;</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">FANCY_MACRO</span><span class="p">;</span></code></pre></figure>
+
+<p>This wouldn’t compile since <code class="language-plaintext highlighter-rouge">FANCY_MACRO</code> is an undefined symbol in the first
+and third instances.</p>
+
+<p>The replacement list doesn’t even have to be valid code, technically. Macros are
+expanded during preprocessing, before the actual compiler sees the code.
+Therefore, if a macro replacement that would result in invalid code isn’t
+actually <em>used</em> after being defined, the compiler would never see the invalid
+definition. The definitions of <em>all expanded macros</em>, on the other hand, will be
+seen by the compiler and therefore must result in valid code.</p>
+
+<h2 id="phases-of-translation">Phases of Translation</h2>
+
+<p>Before discussing macros in more depth, I want to discuss the C/C++ language
+models as a whole. This should provide more context and intuition about how and
+why macros work.</p>
+
+<p>First off, C and C++ are called “compiled” languages. This is because source
+code must be transformed into executable code before it can be run directly on a
+machine. This process of transforming source code is commonly called
+“compilation” in practice, but that isn’t quite right. The overall process is
+formally called <em>translation</em>, which includes preprocessing, compilation, and
+linking (along with some smaller steps in between).</p>
+
+<p>The full translation process is a series of 8-9 <em>phases</em> (depending on the
+language and version) which are defined in the C/C++ ISO standards documents.
+While these documents specify in general terms what should be done in each
+phase, it intentionally does not dictate how these steps should be implemented.
+Therefore, different compiler toolchains (GCC, Clang, etc.) may work
+differently.</p>
+
+<p>In this article, we’ll be discussing GCC’s implementation.</p>
+
+<p>In GCC, the work of the translation process is actually divided up into separate
+discrete tools, each with their own binary. There is a preprocessor (<em>cpp</em>), a
+compiler (<em>GCC</em>), and a linker (<em>ld</em>). GCC, the compiler, is actually capable of
+running the other tools under the hood when you use it on the command line.
+Because of this, when a C/C++ programmer “compiles” their code, they generally
+just make a series of calls to GCC, rarely touching the other tools manually.</p>
+
+<p>Okay, how does all of this relate to macros?</p>
+
+<p>First, it suggests that we may be able to observe the effects of macro
+replacement directly. Second, it provides intuition for some details about
+exactly how macros work.</p>
+
+<p>Because GCC separates its tools, it’s possible to run the preprocessor on the
+command line by itself. Since the preprocessor controls macro replacement, this
+allows users to see the result of macro replacement firsthand. I cover this
+<a href="#running-the-preprocessor-manually">later in the article</a>.</p>
+
+<p>As far as intuition building is concerned, let’s see the order of the
+<em>tokenization</em>, preprocessing, and compilation translation phases:</p>
+
+<ul>
+  <li>Tokenization (of preprocessing tokens): step 3</li>
+  <li>Preprocessing: step 4</li>
+  <li>Compilation: step 7 (steps 7/8 in C++)</li>
+</ul>
+
+<p><em>Tokenization technically occurs twice, once in step 3 and again in step 7 right
+before compilation. More <a href="#tokens-and-preprocessor-tokens">below</a>.</em></p>
+
+<p>The most important takeaway here is that initial tokenization occurs <em>before</em>
+preprocessing, which occurs <em>before</em> compilation. Therefore, extraneous
+whitespace and comments are all removed before the preprocessor ever sees the
+code, and preprocessing occurs before the compiler ever sees the code.</p>
+
+<p>From this information we can intuit various details about macro replacement:
+multi-line replacement lists will occupy only one line once replaced, macro
+definitions are only seen by the compiler if the macro is used, the compiler
+never actually sees preprocessor directives, etc.</p>
+
+<p>For more information about the translation phases, I would recommend reading either cppreference.com or the drafts for the C/C++ standards directly:</p>
+
+<ul>
+  <li><a href="https://en.cppreference.com/w/c/language/translation_phases">cppreference.com for C</a></li>
+  <li><a href="https://en.cppreference.com/w/cpp/language/translation_phases">cppreference.com for C++</a></li>
+  <li><a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf">C99 Standard Draft N1256 (section 5.1.1.2)</a></li>
+  <li><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf">C++11 Standard Draft N3337 (section 2.2)</a></li>
+</ul>
+
+<h2 id="two-types-of-macros-object--and-function-like">Two Types of Macros: Object- and Function-like</h2>
+
+<p>Now, let’s see how some basic macros work.</p>
+
+<p>There are two overarching types of macros: object-like and function-like.</p>
+
+<h4 id="object-like-macros">Object-like macros</h4>
+
+<p>Macros which take no arguments are called “object-like”. These are often used to
+store constants, as below:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define IMPORTANT_NUMBER 627</span></code></pre></figure>
+
+<h4 id="function-like-macros">Function-like macros</h4>
+
+<p>Conversely, macros which do accept arguments are called “function-like”. They
+work similarly to regular functions.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define ADD(x, y) x + y
+</span><span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="n">ADD</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span></code></pre></figure>
+
+<p>The above code snippet would be expanded to:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">;</span></code></pre></figure>
+
+<p>Note that the semicolon is excluded in the macro definition and thus must be
+included in the call to the macro.</p>
+
+<p><em>Variadic macros</em> are function-like macros which accept a variable number of
+arguments. Here’s the example used by the <a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros">GNU cpp
+docs</a>:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define eprintf(...) fprintf(stderr, __VA_ARGS__)</span></code></pre></figure>
+
+<p>The <code class="language-plaintext highlighter-rouge">__VA_ARGS__</code> identifier represents all of the arguments passed into the
+macro, separated by commas.</p>
+
+<p>Named arguments can be included in variadic macros. A custom variadic identifier
+can also be specified in place of <code class="language-plaintext highlighter-rouge">__VA_ARGS__</code>. Here’s an updated example of
+<code class="language-plaintext highlighter-rouge">eprintf</code>:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define eprintf(str, args...) printf(stderr, str, args)</span></code></pre></figure>
+
+<p>As in the examples shown, variadic macros are often used to extend <code class="language-plaintext highlighter-rouge">printf</code>.</p>
+
+<p>There are some additional points involving variadic macros which we won’t get
+into here. See the <a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros">GCC documentation</a> for more details.</p>
+
+<h2 id="tokens-and-preprocessor-tokens">Tokens and Preprocessor Tokens</h2>
+
+<p>Before discussing the # and ## operators in the next section, it’s useful to
+first explain the concepts of tokens and preprocessor tokens.</p>
+
+<p>In computer science, a “token” is the smallest piece of a program which is
+meaningful to a given language’s compiler/interpreter. Take the following line
+of C++ code:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">foo</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>  <span class="c1">// foo is an original name</span></code></pre></figure>
+
+<p>After this line is tokenized, the resulting array of tokens would be:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">[int, foo, =, (, 5, +, *, ), *, 3, ;]</code></pre></figure>
+
+<p>This set of tokens is passed to the next stage of the compiler for further
+processing. Note that, while used for demarcating tokens, whitespace characters
+themselves are not tokens. Comments are also not tokens.</p>
+
+<p>Now, while each language has its own set of tokens, C and C++ also have sets of
+<em>preprocessor tokens</em>. This means that the preprocessor interprets source code
+differently than the actual compiler.</p>
+
+<p>So here’s what happens. Recall the <a href="#phases-of-translation">above discussion</a>
+about translation phases. When your C/C++ code is compiled, it is first parsed
+by the preprocessor. The preprocessor converts all of the code into
+<em>preprocessor tokens</em>. It then applies some changes (“transformations”) to the
+source code based on these preprocessor tokens. After these transformations are
+applied, the resulting source code is converted into <em>tokens</em> (<strong>not</strong>
+preprocessor tokens) for actual compilation.</p>
+
+<p>To make this crystal clear, let’s run through an example.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define MY_NUM 6
+</span><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">-</span> <span class="n">MY_NUM</span><span class="p">;</span></code></pre></figure>
+
+<p>The preprocessor would parse this code into the following <strong>preprocessor
+tokens</strong>:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">[#define, MY_NUM, 6, int, x, =, 10, -, MY_NUM, ;]</code></pre></figure>
+
+<p>Now that the preprocessor has generated preprocessing tokens, it must transform
+the code based on the preprocessor directives. The #define directives indicate
+that a macro substitution should occur, so that transformation is applied.
+Afterwards, the preprocessor directives are removed from the code. That leaves
+us with the following preprocessed code:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">-</span> <span class="mi">6</span><span class="p">;</span></code></pre></figure>
+
+<p>As you can probably guess, the <strong>tokens</strong> resulting from this code are:</p>
+
+<figure class="highlight"><pre><code class="language-plaintext" data-lang="plaintext">[int, x, =, 10, -, 6, ;]</code></pre></figure>
+
+<p>Again, these are regular tokens, <em>not</em> preprocessing tokens.</p>
+
+<p>As we can see, only the preprocessor is used to interact with preprocessor
+directives, so the compiler does not need to recognize preprocessor directives
+at all.</p>
+
+<p>With these definitions in mind, let’s now talk about the stringizing (#) and
+token concatenation (##) preprocessor operators.</p>
+
+<h2 id="preprocessor-operators--and-">Preprocessor Operators: # and ##</h2>
+
+<p>In the examples above, macro substitution simply causes the compiler to
+recognize the replaced text as a set of tokens. This is great for many
+applications, but sometimes we may want a bit more control over this process.
+The stringizing (#) and token concatenation (##) operators allow us to
+manipulate how the preprocessor converts macros into tokens.</p>
+
+<h4 id="stringizing-operator-">Stringizing Operator (#)</h4>
+
+<p>The # (single hash) operator allows us to <em>stringize</em> an argument in a
+function-like macro. This converts the argument into a string constant. Instead
+of interpreting the argument as a normal set of tokens, the entire argument is
+converted into one string literal token. A simple example can be shown with
+another <code class="language-plaintext highlighter-rouge">printf</code> macro:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define PRINT_RESULT(exp) printf(#exp " = ", exp)
+</span><span class="n">PRINT_RESULT</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">);</span></code></pre></figure>
+
+<p>The code above would be preprocessed into the following:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">printf</span><span class="p">(</span><span class="s">"2 + 3"</span> <span class="s">" = "</span><span class="p">,</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">);</span></code></pre></figure>
+
+<p>Notice that the stringized argument ends up adjacent to the string literal that
+was already present in the macro definition. This is the correct way of using
+stringized arguments since adjacent string literal tokens are concatenated
+before actual compilation (in translation phase 6).</p>
+
+<h4 id="token-concatenationpasting-operator-">Token Concatenation/Pasting Operator (##)</h4>
+
+<p>While the single hash operator allows us to convert a token into a string
+literal token, the double hash operator allows us to combine tokens. This is
+called <em>token concatenation</em> (or <em>token pasting</em>).</p>
+
+<p>As a simple example, token concatenation can be used to declare multiple
+variables of the same type:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define THREE_INTS(name) int name##1, name##2, name##3
+</span><span class="n">THREE_INTS</span><span class="p">(</span><span class="n">foo</span><span class="p">);</span></code></pre></figure>
+
+<p>This generates the following code:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">foo1</span><span class="p">,</span> <span class="n">foo2</span><span class="p">,</span> <span class="n">foo3</span><span class="p">;</span></code></pre></figure>
+
+<p>Due to token pasting, <code class="language-plaintext highlighter-rouge">foo1</code>, <code class="language-plaintext highlighter-rouge">foo2</code>, and <code class="language-plaintext highlighter-rouge">foo3</code> are complete, valid tokens.</p>
+
+<p>Token concatenation can also be used for more complicated tasks. One prime
+example is creating <a href="https://en.wikipedia.org/wiki/X_Macro"><em>X macros</em></a>, which
+are macros that maintain two related lists. A common usage of this is to
+reliably generate a list of strings corresponding to the enumerators in an
+enumeration. Let’s see this in action. Say we want to create an enumeration with
+all possible color values for a given application. We also want to print these
+options out to the user.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define COLOR_LIST \
+    X(red), \
+    X(blue), \
+    X(green)
+</span>
+<span class="c1">// Define the enum.</span>
+<span class="k">enum</span> <span class="k">class</span> <span class="nc">colors</span> <span class="p">{</span>
+<span class="cp">#define X(name) COLOR_##name
+</span><span class="n">COLOR_LIST</span>
+<span class="cp">#undef X
+</span><span class="p">};</span>
+
+<span class="c1">// Define the list of strings.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">color_names</span> <span class="o">=</span> <span class="p">{</span>
+<span class="cp">#define X(name) #name
+</span><span class="n">COLOR_LIST</span>
+<span class="cp">#undef X
+</span><span class="p">};</span></code></pre></figure>
+
+<p>Expanding the <code class="language-plaintext highlighter-rouge">COLOR_LIST</code> macro results in the following code:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">enum</span> <span class="k">class</span> <span class="nc">colors</span> <span class="p">{</span>
+<span class="cp">#define X(name) COLOR_##name
+</span><span class="n">X</span><span class="p">(</span><span class="n">red</span><span class="p">),</span> <span class="n">X</span><span class="p">(</span><span class="n">blue</span><span class="p">),</span> <span class="n">X</span><span class="p">(</span><span class="n">green</span><span class="p">)</span>
+<span class="cp">#undef X
+</span><span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">color_names</span> <span class="o">=</span> <span class="p">{</span>
+<span class="cp">#define X(name) #name
+</span><span class="n">X</span><span class="p">(</span><span class="n">red</span><span class="p">),</span> <span class="n">X</span><span class="p">(</span><span class="n">blue</span><span class="p">),</span> <span class="n">X</span><span class="p">(</span><span class="n">green</span><span class="p">)</span>
+<span class="cp">#undef X
+</span><span class="p">};</span></code></pre></figure>
+
+<p>Expanding the <code class="language-plaintext highlighter-rouge">X</code> macros would result in the final code:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="k">enum</span> <span class="k">class</span> <span class="nc">colors</span> <span class="p">{</span>
+<span class="n">COLOR_red</span><span class="p">,</span> <span class="n">COLOR_blue</span><span class="p">,</span> <span class="n">COLOR_green</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">color_names</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s">"red"</span><span class="p">,</span> <span class="s">"blue"</span><span class="p">,</span> <span class="s">"green"</span>    
+<span class="p">};</span></code></pre></figure>
+
+<p>The stringization and token pasting operators can be used for many applications
+of this concept.</p>
+
+<h4 id="two-layers-of-indirection">Two Layers of Indirection</h4>
+
+<p>One important aspect of the stringization and token pasting operators is that
+they don’t expand macros themselves. As a result, an additional layer of
+indirection must be used to handle all cases correctly. Let’s see some examples.</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define SIMPLE_STRINGIZE(x) #x
+</span><span class="n">SIMPLE_STRINGIZE</span><span class="p">(</span><span class="n">hello</span><span class="p">)</span></code></pre></figure>
+
+<p>As would be expected, the above yields “hello”. The following, however, does
+not:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define BAD_STRINGIZE(x) #x
+#define FOO hello
+</span><span class="n">BAD_STRINGIZE</span><span class="p">(</span><span class="n">FOO</span><span class="p">)</span></code></pre></figure>
+
+<p>It expands to “FOO”.</p>
+
+<p>This is the correct implementation which works in all cases:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#define GOOD_STRINGIZE(x) ACTUAL_STRINGIZE(x)
+#define ACTUAL_STRINGIZE(x) #x
+#define FOO hello
+</span><span class="n">GOOD_STRINGIZE</span><span class="p">(</span><span class="n">FOO</span><span class="p">)</span></code></pre></figure>
+
+<p>This correctly expands to “hello”.</p>
+
+<p><code class="language-plaintext highlighter-rouge">GOOD_STRINGIZE</code> expands the macro (converts <code class="language-plaintext highlighter-rouge">FOO</code> to <code class="language-plaintext highlighter-rouge">hello</code>), while
+<code class="language-plaintext highlighter-rouge">ACTUAL_STRINGIZE</code> performs the stringization (converts <code class="language-plaintext highlighter-rouge">hello</code> to <code class="language-plaintext highlighter-rouge">"hello"</code>).
+As mentioned, this concept applies to the token pasting operator as well,</p>
+
+<h2 id="cc-differences">C/C++ Differences</h2>
+
+<p>As we start wrapping up this article, I want to touch on how the preprocessor
+differs between C and C++ and where the preprocessor is headed in the future.</p>
+
+<p>For the most part, the C and C++ preprocessors are meant to work the same way.
+While this isn’t the case for every version of the two languages (the
+preprocessor in general has evolved over time, for example with the inclusion of
+variadic macros), the differences are generally few and far between.</p>
+
+<p>Predefined macros, however, are slightly different between C and C++. The
+complete list of non-optional predefined macros can be seen on the relevant
+cppreference.com pages for the <a href="https://en.cppreference.com/w/c/preprocessor/replace">C
+preprocessor</a> and the <a href="https://en.cppreference.com/w/cpp/preprocessor/replace">C++
+preprocessor</a>.</p>
+
+<p>Additional macros are defined by different compilers and environments, but
+that’s beyond the scope of this article.</p>
+
+<p>This all being said, the role of the preprocessor is changing a bit in C++20.
+Modules are introducing two new preprocessor directives, <code class="language-plaintext highlighter-rouge">import</code> and <code class="language-plaintext highlighter-rouge">export</code>,
+which are set to revamp how C++ projects organize code, making the <code class="language-plaintext highlighter-rouge">#include</code>
+directive obsolete. Other language features are being shifted away from the
+preprocessor as well, as the <code class="language-plaintext highlighter-rouge">&lt;source_location&gt;</code> header will provide
+alternatives to the <code class="language-plaintext highlighter-rouge">__FILE__</code> and <code class="language-plaintext highlighter-rouge">__LINE__</code> macros for debugging and tracing.</p>
+
+<h2 id="running-the-preprocessor-manually">Running the Preprocessor Manually</h2>
+
+<p>Finally, let’s discuss how to run the preprocessor manually as we hinted to
+earlier.</p>
+
+<p>Running the preprocessor by itself is quite straightforward. With GCC it can be
+done with the following command, which stops compilation after the preprocessor
+phase:</p>
+
+<p><code class="language-plaintext highlighter-rouge">gcc -E &lt;input&gt; -o &lt;output&gt;</code></p>
+
+<p>Alternatively, you can run the preprocessor (cpp) directly:</p>
+
+<p><code class="language-plaintext highlighter-rouge">cpp &lt;input&gt; -o &lt;output&gt;</code></p>
+
+<p>The resulting output file will be free of all preprocessing tokens, such as
+preprocessor directives and macros. All macros will have been expanded and all
+<code class="language-plaintext highlighter-rouge">#include</code> directives will have been substituted with the appropriate file.
+Comments and extraneous whitespace will also have been removed. Additional lines
+are added by the preprocessor which specify included files and line numbers,
+along with some other diagnostic information.</p>
+
+<p>Because all necessary files will be included, this file will likely be quite
+lengthy, with easily over 10,000 lines of code even for a simple C++ file making
+use of the Standard Library. Thankfully, searching for the name of the original
+source file along with the relevant line number makes finding expanded macros
+quite easy.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>I’m hoping this article provides a good overview of not just <em>how</em> macros work,
+but <em>why</em> they work and how they fit into the greater C/C++ compilation model.
+While macros are finding less use as C++ evolves, they can still be used for
+very concise and efficient solutions.</p>
+
+<h2 id="references">References</h2>
+<ul>
+  <li><a href="https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html#Variadic-Macros">GCC preprocessor documentation</a></li>
+  <li><a href="https://en.cppreference.com/w/cpp/preprocessor/replace">cppreference.com: Preprocessor replacing text macros</a></li>
+  <li><a href="https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf">C99 Standard Draft N1256</a></li>
+  <li><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3337.pdf">C++11 Standard Draft N3337</a></li>
+  <li><a href="https://www.fluentcpp.com/2019/05/14/3-types-of-macros-that-improve-c-code/">Jonathan Boccara: 3 Types of Macros That Improve C++ Code</a></li>
+  <li><a href="https://eli.thegreenplace.net/2011/07/03/parsing-c-in-python-with-clang">Eli Bendersky: Parsing C++ in Python with Clang</a></li>
+</ul>
+
+          </div>
+
+          <div class="reach-out">
+            <center>
+              <em>For questions or comments, please reach out via
+                <a href="mailto:jdtaylor7@gmail.com" title="Send email">
+                  email
+                </a>.
+              </em>
+            </center>
+          </div>
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>

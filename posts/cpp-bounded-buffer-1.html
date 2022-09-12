@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:700;subset=cyrillic" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700;subset=cyrillic" rel="stylesheet">
+
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Taylor Tech Blog | C++ Bounded Buffers, Part 1</title>
+  <meta name="description" content="Introduction to Bounded Buffers">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="C++ Bounded Buffers, Part 1">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://taylortechblog.com/posts/cpp-bounded-buffer-1">
+  <meta property="og:description" content="Introduction to Bounded Buffers">
+  <meta property="og:site_name" content="Taylor Tech Blog">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://taylortechblog.com/posts/cpp-bounded-buffer-1">
+  <meta name="twitter:title" content="C++ Bounded Buffers, Part 1">
+  <meta name="twitter:description" content="Introduction to Bounded Buffers">
+
+  
+    <meta property="og:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+    <meta name="twitter:image" content="https://taylortechblog.com/assets/og-image-fc49afbe81c2cf02482ce6870323ff144e22adf8ea4ccb5b310dff1d643f4cff.jpg">
+  
+
+  <link href="https://taylortechblog.com/feed.xml" type="application/rss+xml" rel="alternate" title="Taylor Tech Blog Last 10 blog posts" />
+
+  
+
+  
+
+    
+      <link rel="icon" type="image/x-icon" href="/assets/favicon-light-357fb30d046a097b38719acab848446b32a59e4bf916ea4ba688c45c2601228d.ico">
+      <link rel="apple-touch-icon" href="/assets/apple-touch-icon-light-469018fe0ed73bb6dc614541657f5659d5d82b946c0c5ebc9f6172e8692895e4.png">
+      <link rel="stylesheet" type="text/css" title="light" id="light" href="/assets/light-502d62a432584e4baa3a0cfa5c2bd8042ae86470d4366a62f5ca4e93a9693070.css">
+      <link rel="stylesheet" type="text/css" title="dark" id="dark" href="/assets/dark-3a5944d547c08719f244f13525b9330df44741048e607c31e71a4c6cad271a05.css" disabled="true">
+    
+
+  
+
+</head>
+
+<body>
+  <main>
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav scrollappear">
+  <a href="/" class="header-logo" title="Taylor Tech Blog">Taylor Tech Blog</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-about">
+  <use href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about" xlink:href="/assets/about-ecf154b571ab8034ae00aeed91a3b7ad68db80b46d958753ad6216c919486e88.svg#icon-about"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/jdtaylor7" rel="noreferrer noopener" target="_blank" title="GitHub">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-github">
+  <use href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github" xlink:href="/assets/github-094f81040819f34343ee6ffff0980f17e2807b08b595eaaf66ae3554934fd78d.svg#icon-github"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/jdtaylor7" rel="noreferrer noopener" target="_blank" title="LinkedIn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-linkedin">
+  <use href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin" xlink:href="/assets/linkedin-cdc5c107044324a3dfbea2e9ead15873f8dee304c37d73a046988956b706256e.svg#icon-linkedin"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:jdtaylor7@gmail.com" title="Email">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-email">
+  <use href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email" xlink:href="/assets/email-782473193bf750036fdb90e8daa075508a20509d01854c09f3237c144a3f0601.svg#icon-email"></use>
+</svg>
+
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a onclick="toggle()" title="Toggle Theme">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon-theme">
+  <use href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme" xlink:href="/assets/theme-66869e0bf8dab34bae1c86bda400327b772e0be69e8dc28d3ede896e771320ed.svg#icon-theme"></use>
+</svg>
+
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+
+
+        <article class="article scrollappear">
+          <header class="article-header">
+            <h1>C++ Bounded Buffers, Part 1</h1>
+            <p>Introduction to Bounded Buffers</p>
+            <div class="article-list-footer">
+  <span class="article-list-date">
+    July 2, 2020
+  </span>
+  <span class="article-list-divider">-</span>
+  <span class="article-list-minutes">
+    
+    
+      10 minute read
+    
+  </span>
+  <span class="article-list-divider">-</span>
+  <div class="article-list-tags">
+    
+      
+      <a href="/tag/cpp" title="See all posts with tag 'C++'">C++</a>
+    
+      
+      <a href="/tag/multithreading" title="See all posts with tag 'multithreading'">multithreading</a>
+    
+  </div>
+</div>
+          </header>
+
+          <div class="article-content">
+            <p>As part of an autonomous drone project I’m working on, I created a program which
+displays the drone’s position and orientation in real-time. This program
+required a mechanism to manage the flow of data coming from a telemetry
+receiver.</p>
+
+<p>To address this, I implemented a thread-safe bounded buffer in C++ with multiple
+interfaces to satisfy different use-cases. The data structure is fully tested
+with <a href="https://github.com/google/googletest">GoogleTest</a> and is available <a href="https://github.com/jdtaylor7/bounded_buffer">on
+Github</a> as a header-only library.</p>
+
+<p>This post discusses the background and motivation of bounded buffers, along with
+some of the requirements for an implementation and necessary multithreading
+concepts. The next post, part 2, will dive into the buffer’s interface and
+implementation.</p>
+
+<h2 id="producerconsumer-pattern">Producer/Consumer Pattern</h2>
+
+<p>Before discussing the bounded buffer itself, let me first explain the main
+scenario in which bounded buffers can be useful. The producer/consumer pattern
+is a general software pattern which describes the interaction between two
+parties, a producer and a consumer.</p>
+
+<p>Consider the following real-world scenario: A donut shop (the producer)
+generates donuts continuously while customers (the consumers) purchase donuts
+throughout the day. The donut shop uses traffic from previous days to predict
+how many donuts are needed at different times of the day. That being said, the
+customers themselves are still fundamentally unpredictable and as a whole they
+do not purchase donuts at some strict rate. The shop uses racks to store the
+donuts, which are being emptied and replenished continuously.</p>
+
+<p>In this example, we have the following elements:</p>
+<ul>
+  <li>Resource: Donuts</li>
+  <li>Producer: Donut shop</li>
+  <li>Consumer: Customers</li>
+  <li>Storage mechanism: Donut racks</li>
+</ul>
+
+<p>This is a producer/consumer situation. Resources are generated and used by
+various parties, while some mechanism holds the resources  awaiting consumption.
+Resources can be produced/consumed at fixed rates, intermittently, or both.
+Multiple producers and/or consumers may be present.</p>
+
+<p>The producer/consumer problem arises in multiple areas of software. Some
+examples:</p>
+
+<ul>
+  <li>An operating system sending and receiving packets through network interfaces</li>
+  <li>A hardware device passing received data to a software application for
+processing, such as a thermostat passing temperature data to a home automation
+system</li>
+  <li>A game server receiving data from multiple clients and updating the game
+environment accordingly</li>
+</ul>
+
+<h2 id="bounded-buffers">Bounded Buffers</h2>
+
+<p>In the above donut shop scenario, the donut racks serve as a literal buffer
+between the donut-making machines and the customers. They also happen to be
+bounded by their size, which determines how many donuts they can hold. They
+allow for discrepancies between the production and consumption rates inherently
+present in the system. In the same way, bounded buffers are used to solve the
+general problem related to mismatched production/consumption rates among
+multiple parties.</p>
+
+<p>In practice, a bounded buffer is just a queue with specific input/output
+properties. Let’s look at a graphical representation of a bounded buffer:</p>
+
+<p><a href="/assets/bounded-buffer@2x-83e4c0f82b6eeb75bfe2b91797425c781c20ba5b30a297f9dfa29a386af1e07f.png">
+  <img src="/assets/bounded-buffer-f74ea817f74fd6ff30c40b108dfe9761c67bbb86b7dd28a834ca9aec1668b424.png" alt="Bounded buffer graphic" class="zooming" data-rjs="/assets/bounded-buffer@2x-83e4c0f82b6eeb75bfe2b91797425c781c20ba5b30a297f9dfa29a386af1e07f.png" data-zooming-width="1114" data-zooming-height="355" />
+</a></p>
+
+<p>First, the buffer has a <strong>capacity</strong> which defines the maximum number of
+elements that can be stored. This is why the buffer is called bounded. The
+<strong>size</strong> of the buffer, in keeping with the terminology of C++’s standard
+containers, is the current number of elements in the buffer.</p>
+
+<p>Since the buffer is a queue, elements are removed in the same order that they
+were placed into it: first in, first out (FIFO). Multiple producers and multiple
+consumers are permitted. Producers may only insert elements into the buffer,
+while consumers may only remove elements from it.</p>
+
+<h4 id="bounded-buffer-inputoutput">Bounded Buffer Input/Output</h4>
+
+<p>Bounded buffers have a few complications, the first of which is controlling
+producer/consumer access to the data. When a buffer is just partially full, this
+is straightforward because data can be inserted or removed without issue. The
+problem arises when attempting to add data to a full buffer or remove data from
+an empty buffer.</p>
+
+<p>Remembering the donut shop example, what should be done when more donuts are
+made than can be held in the storage racks? Conversely, what should a customer
+do when no donuts are available in the storage racks? To answer the first
+problem, the theoretical solutions are:</p>
+
+<ol>
+  <li>Discard the extra donuts</li>
+  <li>Pause the donut assembly line indefinitely until space is available</li>
+  <li>Wait some finite amount of time for space to become available, but start
+throwing donuts out when that time passes</li>
+  <li>Discard the oldest donuts from the racks to make space for the newer donuts</li>
+</ol>
+
+<p>In real life, these approaches may not be sufficient. In an actual donut shop,
+additional solutions would likely be employed. More storage would be used, donut
+production would be slowed, and donut production would likely be slowed under in
+the future to prevent the problem from occurring again. These additional
+measures may or may not be under one’s control in a software system, but
+regardless they are separate from the bounded buffer itself. Thus, we will stick
+to these four solutions.</p>
+
+<p>Now let’s look at a customer’s options when no donuts are ready:</p>
+
+<ol>
+  <li>Leave the donut shop</li>
+  <li>Wait indefinitely for donuts to become available</li>
+  <li>Wait a finite amount of time for donuts to be ready, leave once this time
+passes</li>
+</ol>
+
+<p>These options correspond to the first three producer’s options, since the fourth
+is not possible from the consumer’s perspective.</p>
+
+<p>Finally, let’s map these donut shop options to those for a bounded buffer:</p>
+
+<p>Producer:</p>
+
+<ol>
+  <li>Do not add the element and mark the operation as failed</li>
+  <li>Wait until there is space to add the element</li>
+  <li>Wait some set amount of time for space to be created, fail if the time
+expires</li>
+  <li>Create space by removing an element, then add the element</li>
+</ol>
+
+<p>Consumer:</p>
+
+<ol>
+  <li>Do not remove any elements and mark the operation as failed</li>
+  <li>Wait until an element is present</li>
+  <li>Wait a set amount of time for an element to be available, fail if the time
+expires</li>
+</ol>
+
+<p>These options are all implemented in the bounded buffer I created. This will be
+discussed more in part 2.</p>
+
+<h4 id="race-conditions">Race Conditions</h4>
+
+<p>Another complication regarding bounded buffers is that of <strong>race conditions</strong>. A
+race condition occurs when multiple threads “race” to access a resource at the
+same time. If two threads are attempting to execute a function at the same time,
+it’s possible that one function will start executing while the other is already
+running. This can lead to incorrect results if not disallowed. Take the
+following function (interpret it, and the remaining code in this section, as
+pseudocode):</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">global_val</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">increment_global</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">global_val</span><span class="p">;</span>
+    <span class="n">tmp</span><span class="o">++</span><span class="p">;</span>
+    <span class="n">global_val</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>If two threads were to execute the function at the same time, the results should
+look like this:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">global_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">tmpA</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>  <span class="c1">// thread A</span>
+<span class="n">tmpA</span><span class="o">++</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>                 <span class="c1">// thread A</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpA</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>      <span class="c1">// thread A</span>
+
+<span class="kt">int</span> <span class="n">tmpB</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread B</span>
+<span class="n">tmpB</span><span class="o">++</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>                 <span class="c1">// thread B</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpB</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>      <span class="c1">// thread B --&gt; correct value!</span></code></pre></figure>
+
+<p>Either thread A or B could be executed first, but the main point is that one
+thread should run to completion before the next starts executing. But as it
+stands, the results could look like this:</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">global_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">tmpA</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>  <span class="c1">// thread A</span>
+<span class="kt">int</span> <span class="n">tmpB</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>  <span class="c1">// thread B</span>
+<span class="n">tmpA</span><span class="o">++</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread A</span>
+<span class="n">tmpB</span><span class="o">++</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread B</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpA</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread A</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpB</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread B --&gt; wrong value!</span></code></pre></figure>
+
+<p>Instead of thread A running to completion before thread B starts, the code of
+the two functions could become interleaved. This would cause thread B to use the
+wrong initial value for <code class="language-plaintext highlighter-rouge">global_val</code> (1) instead of the intended value (2). To
+be clear, the issue is not quite that two of the <em>same</em> function are being run
+in parallel - the problem could arise if the two threads were running different
+functions. The real problem is that both threads access the same <strong>shared data</strong>
+(<code class="language-plaintext highlighter-rouge">global_val</code>) without any restrictions. Some kind of <strong>access control</strong> must be
+provided for the shared data. This is achieved with a <strong>lock</strong>, also called a
+<a href="https://en.cppreference.com/w/cpp/thread/mutex"><strong>mutex</strong></a> (short for mutual
+exclusion).</p>
+
+<p>A mutex can be compared to the lock on a porta potty. When approaching the
+stall, you first check the condition of the lock. If the lock is red, it means
+that someone is already using the toilet and you must wait. If the lock is
+green, the stall is unoccupied and access can be obtained. Claiming a porta
+potty for oneself requires more than just walking in and closing the door,
+though. Upon entering the bathroom you must lock the stall, setting it to the
+occupied state so others know not to enter. Mutexes are similar in the sense
+that they are technically optional and may not always end up being required (for
+example, maybe no one tried to enter the bathroom while you were using it). Not
+using them, however, can result in some unfortunate situations.</p>
+
+<p>There is some additional terminology concerning mutexes. They are said to be
+<strong>acquired</strong> and <strong>released</strong> when a thread obtains them or gives them up
+(locking and unlocking the bathroom stall, accordingly). Their operation is also
+said to be <strong>atomic</strong>, which means that no instructions from other threads can
+interrupt their operations. Operations including “normal” data types like
+regular Booleans are not atomic and thus cannot guarantee the prevention of race
+conditions like mutexes can (read more about this
+<a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">here</a> and
+<a href="https://www.threadingbuildingblocks.org/docs/help/tbb_userguide/Atomic_Operations.html">here</a>).</p>
+
+<p>If we require that a lock be obtained before acting on a shared resource, then
+every instruction is safe while the lock is held. This enforces the following
+scenario, consistently (more pseudocode):</p>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">global_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">mutex</span> <span class="n">global_val_mtx</span><span class="p">;</span>
+
+<span class="c1">// both threads attempt to acquire the lock, thread B succeeds (could have been</span>
+<span class="c1">// thread A)</span>
+<span class="n">lock</span><span class="p">(</span><span class="n">global_val_mtx</span><span class="p">);</span>       <span class="c1">// thread B</span>
+<span class="kt">int</span> <span class="n">tmpB</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>  <span class="c1">// thread B</span>
+<span class="n">tmpB</span><span class="o">++</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>                 <span class="c1">// thread B</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpB</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>      <span class="c1">// thread B</span>
+<span class="n">unlock</span><span class="p">(</span><span class="n">global_val_mtx</span><span class="p">);</span>     <span class="c1">// thread B</span>
+
+<span class="n">lock</span><span class="p">(</span><span class="n">global_val_mtx</span><span class="p">);</span>       <span class="c1">// thread A</span>
+<span class="kt">int</span> <span class="n">tmpA</span> <span class="o">=</span> <span class="n">global_val</span> <span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// thread A</span>
+<span class="n">tmpA</span><span class="o">++</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>                 <span class="c1">// thread A</span>
+<span class="n">global_val</span> <span class="o">=</span> <span class="n">tmpA</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>      <span class="c1">// thread A --&gt; correct value!</span>
+<span class="n">unlock</span><span class="p">(</span><span class="n">global_val_mtx</span><span class="p">);</span>     <span class="c1">// thread A</span></code></pre></figure>
+
+<p>All of this discussion is to say the following: a bounded buffer requires a
+mutex in order to be considered <strong>thread safe</strong>. This means that multiple
+threads can use the bounded buffer simultaneously without causing any problems
+due to race conditions. Because of the scenarios bounded buffers are used in,
+thread-safety is often a requirement.</p>
+
+<h4 id="condition-variables">Condition Variables</h4>
+
+<p>For bounded buffers, there is one additional construct required for correct
+operation. This is called either a signal or a <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">condition
+variable</a>.
+Condition variables allow threads to communicate to each other that some
+condition has been met.</p>
+
+<p>In a bounded buffer, this is necessary when one or more consumers are waiting
+for data to be placed into an empty buffer. After executing a wait command, each
+consumer thread is put into a queue corresponding to the shared condition
+variable it is waiting on. When the condition variable is <strong>notified</strong>, the next
+consumer thread is allowed to run. Producer threads manually notify the
+condition variable after putting data into the buffer. The condition variable
+then wakes up the next waiting consumer thread automatically.</p>
+
+<p>Waiting on a condition variable is in contrast to a polling strategy. In a
+polling strategy, the next waiting consumer thread in the queue would
+continuously check the status of the buffer. Once it finds an available piece of
+data in the buffer, it starts running. This is more wasteful of CPU cycles since
+polling requires the thread to be actively doing something, while condition
+variables allow the thread to be put to sleep.</p>
+
+<p>Remembering back to the donut shop example, the waiting strategy is akin to
+customers sitting down and waiting for donuts to become available if none are
+ready. Once a donut is made, the customer waiting the longest is alerted. The
+polling strategy, on the other hand, corresponds to the next customer repeatedly
+checking whether donuts are ready.</p>
+
+<p>The same pattern works in the other direction: producer threads are also put
+into their own queue when the buffer is full, while consumer threads notify a
+second condition variable when empty space becomes available in the buffer. To
+be explicit, the bounded buffer contains two thread queues and two condition
+variables:</p>
+
+<ul>
+  <li>One queue to store waiting consumer threads</li>
+  <li>One condition variable to notify data is available in the buffer</li>
+  <li>One queue to store waiting producer threads</li>
+  <li>One condition variable to notify empty space is available in the buffer</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Now that we’ve covered the motivation for implementing bounded buffers and some
+of the high-level features associated with them, we are ready to get into the
+weeds of an actual implementation. That will be covered in part 2. We will
+discuss the API design, the C++ implementations of mutexes/condition variables,
+and the source code of some of the bounded buffer functions.</p>
+
+<p><a href="https://github.com/jdtaylor7/bounded_buffer">Here’s</a> the repository.
+Suggestions and pull requests are welcome.</p>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://en.cppreference.com/w/cpp/thread/mutex">std::mutex - cppreference</a></li>
+  <li><a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable - cppreference</a></li>
+  <li><a href="https://preshing.com/20130618/atomic-vs-non-atomic-operations/">Atomic vs. Non-Atomic Operations - Jeff Preshing</a></li>
+  <li><a href="https://www.threadingbuildingblocks.org/docs/help/tbb_userguide/Atomic_Operations.html">Atomic Operations - Intel Thread Building Blocks Developer Guide</a></li>
+</ul>
+
+          </div>
+
+          <div class="reach-out">
+            <center>
+              <em>For questions or comments, please reach out via
+                <a href="mailto:jdtaylor7@gmail.com" title="Send email">
+                  email
+                </a>.
+              </em>
+            </center>
+          </div>
+        </article>
+        <footer class="footer scrollappear">
+  <p>
+    <center>
+      Copyright &copy; <script src="/assets/date-eae756b980bd4bbfa32965a140a6f6021c09f878940a31de665d4c44d6c00f65.js" type="text/javascript"></script> Jordan Taylor
+    </center>
+  </p>
+</footer>
+
+      </div>
+    </div>
+  </main>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-177181376-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-177181376-1');
+  </script>
+
+
+<script src="/assets/vendor-1a8f6e33220f845e569c20b3c09a5d43f87908ea7168ea139ce2135770f7b1b5.js" type="text/javascript"></script>
+
+
+  <script src="/assets/scrollappear-e2da8ea567e418637e31266cc5302126eaa79f62a2273739086358b589a89ee6.js" type="text/javascript"></script>
+
+
+<script src="/assets/application-cfde13ac81ddaf4351b2e739603e2baf688d0fcc9aba613fe62bbb1c7b037fb9.js" type="text/javascript"></script>
+
+
+  <script src="/assets/themetoggle-df0d3d73164dc26dffbd630182ae4d0dfa7bee6b694a2b5d565d73595b582bbf.js" type="text/javascript"></script>
+
+
+</body>
+</html>
